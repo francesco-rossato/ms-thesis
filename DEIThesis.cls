@@ -106,6 +106,10 @@
 \def\coadvisor#1{\gdef\@coadvisor{#1}}
 \def\coadvisorsUniversity#1{\gdef\@coadvisorsUniversity{#1}}
 
+
+\def\cocoadvisor#1{\gdef\@cocoadvisor{#1}}
+\def\cocoadvisorsUniversity#1{\gdef\@cocoadvisorsUniversity{#1}}
+
 % university of Padova color
 \definecolor{UniPDColor}{RGB}{155, 0, 20}
 
@@ -357,6 +361,12 @@
         \small
         \hfill \textbf{\@coadvisorsUniversity} \\
       \fi
+      \ifx\@cocoadvisor\empty \else
+      \hfill \\
+      \hfill \large{\textbf{\@cocoadvisor}} \\
+      \small
+      \hfill \textbf{\@cocoadvisorsUniversity} \\
+    \fi
     \end{flushleft}
 
     \vspace{\stretch{1}} \null
