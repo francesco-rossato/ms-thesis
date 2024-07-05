@@ -1,0 +1,46 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+
+% Load Thesis Class
+\documentclass{DEIThesis}
+
+\title{Scheduling resources and managing HARQ retransmissions in Non-Terrestrial Networks}
+
+\author{Francesco Rossato}
+\studentId{2082121}
+
+% Advisor
+\advisor{Prof.\ Marco Giordani}
+
+% If you are co-advised
+\coadvisor{Dott. Matteo Pagin}
+\coadvisorsUniversity{University of Padova}
+
+\university{University of Padova}
+\mastername{ICT for Internet and Multimedia}
+\academicYear{2023/2024}
+
+\begin{filecontents*}[overwrite]{\jobname.xmpdata}
+    \Title{Scheduling resources and managing HARQ retransmissions in Non-Terrestrial Networks}
+    \Author{Francesco Rossato}
+    \Language{en-EN}
+    \Keywords{ICT\sep ntn\sep non terrestrial networks \sep francesco rossato\sep LaTeX}
+\end{filecontents*}
+
+% Document
+
+\begin{document}
+    % The front matter (Cover, ToC, Abstract, etc...)
+    \frontmatter
+
+    % The main content
+    \mainmatter
+    \include{chapters/01_introduction}
+    \include{chapters/02_releated}
+    \include{chapters/03_background}
+    \include{chapters/04_analysis}
+    \include{chapters/99_conclusions}
+    
+    % Bibliography, appendix, acknowledges, etc...
+    \backmatter
+\end{document}
