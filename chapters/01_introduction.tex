@@ -3,34 +3,52 @@
 \chapter{Introduction}
 \label{chp:intro}
 
-\ac{NTNs} denote a category of networks where at least one link is routed via an aerial or space-borne vehicle such as \ac{HAPs}, \ac{UAVs} or telecommunication satellites.
+The term \ac{NTNs} denotes a category of networks where at least one link is routed via an aerial or space-borne vehicle such as \ac{HAPs}, \ac{UAVs} or telecommunication satellites.
 
 \section{The focus on non-terrestrial networks}
-The Third Generation Partnership Project \footnote{\href{https://www.3gpp.org}{\texttt{3gpp.org}}} (3GPP), the standardization body developing protocols for mobile communication networks, recently put a great emphasis on the importance of the integration of different access technologies with the existing terrestrial mobile telecommunication infrastructure \cite{3gpp-tr-21.917}. The envisioned future for mobile communications, starting with the already established 5G \ac{NR} and expanding with the new sixth-generation cellular networks, foresees the integration of a non-terrestrial component. The latest releases (Rel. 17 and Rel. 18) require that 5G and 6G systems shall be able to provide connectivity exploiting non-terrestrial, satellite access \cite{overview-rel-17-18-saad} \cite{5g-nr-communication-geo-leo-maattanen}.
+The Third Generation Partnership Project \footnote{\href{https://www.3gpp.org}{\texttt{3gpp.org}}} (3GPP), the standardization body developing protocols for mobile communication networks, recently put a great emphasis on the importance of the integration of different access technologies along with the existing terrestrial mobile telecommunication infrastructure \cite{3gpp-tr-21.917}.
 
-\subsubsection{Limitations of terrestrial networks}
-\paragraph{Remote places}
-While \ac{TN} make the well-established foundation of today’s mobile communication infrastructure, their own nature poses some intrinsic limitations to their deployment in certain scenarios, especially in rural and remote areas. Conditions such as harsh terrain and hard to reach places act as natural barriers to the deployment of terrestrial infrastructure, which also requires the presence of an already established reliable power grid, driving up the costs that telecommunication companies would have to sustain.
-Furthermore, the population density is often low in remote and rural places, making this kind of market particularly unattractive to private investors, further limiting the possibility for the people living there to access a resource which is becoming increasingly more important.
+The envisioned future for mobile communications, starting with the already established 5G \ac{NR} and expanding with the new sixth-generation cellular networks (6G), foresees the integration of a non-terrestrial component. The latest \ac{3GPP} releases (Rel. 17 and Rel. 18) require 5G and 6G networks to be able to provide non-terrestrial satellite access complementing the already existing terrestrial access technologies \cite{overview-rel-17-18-saad} \cite{5g-nr-communication-geo-leo-maattanen}.
 
-As studied and documented in \cite{6g-challenge-opportunity-base-pyramid}, the issue of an inadequate broadband coverage to rural regions is an enormous challenge, but also a great opportunity to kick start the economy of currently underdeveloped countries, promoting a more fair access to the internet and alleviating the infamous digital divide between different parts of the world.
-\paragraph{Redundancy}
-Another limitation of the current terrestrial infrastructure is the lack of robustness against natural disasters. Extreme events such as earthquakes, fires and floods, but also deliberate behaviours such as targeted attacks by terrorist organizations and sabotages can disrupt the connectivity for a prolonged duration, hindering rescue efforts and causing significant economical damage.
-In this scenario, \ac{NTNs} can act as redundant access methodology, both to reduce downtimes of terrestrial infrastructure and to provide additional capacity when required. 
+\section{Limitations of terrestrial networks}
+The following paragraphs present a few scenarios where terrestrial networks have some limitations, and \ac{NTNs} can be used to provide connectivity.
 
-\paragraph{Long distances}
-Remote equipment, offshore plants and distribution grids will also benefit from the research carried out in this field, since providing terrestrial connectivity in those scenarios would be a challenging task. The installation of an optical fiber link to serve a single endpoint, such as a wind turbine powered power plant in the ocean, or where many sensors needing a connection are placed in a large area, would be excessively costly \cite{performance-ntn-support-iot-wang}.
+\subsection{Remote places}
+While \ac{TN} make the well-established foundation of today’s mobile communication infrastructure, their own nature poses some intrinsic limitations to their deployment in certain scenarios, especially in rural and remote areas. Conditions such as harsh terrain and geographical impediments act as natural barriers to the deployment of terrestrial infrastructure. Moreover, ground infrastructure requires the presence of an already established reliable power grid, driving up the costs that telecommunication companies would have to sustain.
+The population density is often low in remote and rural places, so the already high infrastructure cost will hardly pay for itself, making this kind of market even more unattractive to private investors and further limiting the possibility for the people living there to access a resource which is becoming increasingly more important.
 
-Other scenarios where \ac{NTNs} can become useful in overcoming the limitation of a terrestrial network are well descripted in \cite{ntn-6g-era-challenges-giordani} and \cite{potential-multilayered-nierarchical-ntn-wang}.
+As studied and documented in \cite{6g-challenge-opportunity-base-pyramid}, the issue of an inadequate broadband coverage in rural regions is an enormous challenge, but also a great opportunity to kick-start the economy of currently underdeveloped countries, promoting a more fair access to the internet and alleviating the problem of digital divide between different parts of the world.
 
-\subsection{Satellite types}
-Depending on the orbit, satellites are classified in three main categories: \ac{GEO}, \ac{MEO} and \ac{LEO}.
+\subsection{Redundancy}
+Another limitation of the current terrestrial infrastructure is the lack of redundancy and robustness against natural disasters. Extreme events such as earthquakes, fires and floods, but also deliberate behaviors such as targeted attacks by terrorist organizations and sabotages can disrupt the connectivity even for a long period of time, causing significant economical damage and hindering the already difficult rescue efforts, potentially leading to loss of lives.
+
+The simple installation of a greater number of base stations is not a viable solution because they all share the same weaknesses.
+
+In this scenario, \ac{NTNs} can act as redundant access methodology to decrease downtimes of terrestrial infrastructure, provide emergency communication services and also additional capacity when required. 
+
+\subsection{Long distances}
+Remote equipment, offshore plants and distribution grids will also benefit from the research carried out in this field, since providing terrestrial connectivity in those scenarios is a challenging task. The installation of an underwater optical fiber link to serve a single endpoint, such as an offshore power plant in the ocean, would bear a disproportional cost compared to the functions required, and maintenance would be another challenging and expensive task. 
+The deployment of a non-terrestrial network would provide connectivity on a global scale, therefore allowing internet access in isolated places without the need for a dedicated connection.
+
+Consider now the problem of connecting of a number of sensors placed in a large area. When distances are large, solutions may either be the densification of radio stations or the use of a lower frequency in order to have a less severe propagation loss. However, those approaches have their downsides and are not always feasible. In this case, the large coverage area of \ac{NTNs} will undoubtedly be useful to provide internet connection \cite{performance-ntn-support-iot-wang}.
+
+\paragraph{} Other scenarios where \ac{NTNs} can become useful in overcoming the limitation of their terrestrial counterpart are well described in \cite{ntn-6g-era-challenges-giordani} and \cite{potential-multilayered-nierarchical-ntn-wang}.
+
+\section{Satellite types}
+Satellites are divided in three different categories depending on their orbiting altitude: \ac{GEO}, \ac{MEO} \ac{LEO} satellites. Each one has its own characteristics, as briefly described below.
 \begin{itemize}
-    \item \textbf{\ac{GEO} satellites}: orbiting at 35.786Km, \ac{GEO} satellites appear stationary since their orbiting period is the same as the Earth rotation period. This simplifies the tracking, and each satellite can provide connectivity to a fixed area.
-    Their higher altitude creates a large cell footprint, larger than both MEO and LEO, so the cost per coverage area is lower.
+    \item \textbf{\ac{GEO} satellites}: orbiting at 35.786Km, \ac{GEO} satellites appear stationary since their orbiting period is the same as the Earth rotation period. This vastly simplifies the tracking for the ground equipment, since once the position of the \ac{UE} is known, the relative position of the satellite is known, too.
+    
+    Since \ac{GEO} satellites are geostationary, continuous coverage to a designated area can be provided using as little as a single satellite, while the use of non-\ac{GEO} satellites would require the deployment of a constellation, which is both more complex and more expensive.
 
-    Cons are mainly linked to the large distance between the \ac{UE} and the satellite: the transmission power and the antenna gain have to be higher to account for the greater propagation losses, and the propagation delay of the signal travelling at the speed of light is 120ms, so if the \ac{UE} sends a request to a server at time zero through a \ac{GEO} link, the best-case delay will be of 480ms, taking into account only the propagation delay.
-    The large cell footprint also means that a single satellite will be serving a massive number of users, so the total available capacity will have to be shared between more users, threfore the throughput experienced by each one of them will be reduced.
+    Their higher altitude creates a large cell footprint, larger than both \ac{MEO} and \ac{LEO}, so the overall cost to provide coverage to the same area is lower.
+
+    The disadvantages of \ac{GEO} satellites are mainly linked to the large distance with the \ac{UE}: the transmission power and the antenna gain have to be higher to account for the greater propagation losses, and the propagation delay of the signal travelling at the speed of light is about 120ms, so if the \ac{UE} sends a request to a server at time zero through a \ac{GEO} link, the best-case delay will be of half a second without considering any protocol-related delay.
+
+    In addition to the positive aspects previously discussed, the larger cell footprint also means that a single satellite will be serving a massive number of users, so the total available capacity will have to be shared between a bigger number of actors, and the throughput experienced by each one of them will be reduced. 
+    Moreover, the high number of users leads to a large rate of initial access and handover requests, and the shit hith
+
+    \item \textbf{\ac{LEO} satellites}: orbiting between 
 \end{itemize}
 
 \subsection{Current solutions}
