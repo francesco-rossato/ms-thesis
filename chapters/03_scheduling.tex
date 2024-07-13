@@ -1,0 +1,22 @@
+%!TEX root = ../main.tex
+
+\chapter{Scheduling problems}
+\label{chp:scheduling_problems}
+
+Before tackling the problems that the high propagation delay causes to the \ac{HARQ} protocol, attention shall be put on the random access procedure and on the scheduler, both necessary to be able to receive packets. If those layers are not in working conditions, the communication will not take place.
+
+\section{Scheduling resources with propagation delay}
+
+\todo{Describe how the scheduler has to correct the allocated resources for the high propagation delay. Also, the first implementation did this only in the uplink but not reporting this information when allocating DL slots, so sometimes packets overlapped causing errors.}
+
+\section{BSR timer}
+
+\todo{Describe how the BSR automatic timeout was discovered, the problem, show the plots in fixed\_distance\_si10\_udp both the physical layer and the e2e throughput, highlighting the difference. Tell how this was fixed increasing the timer. It has to account at least for 2*tp. This is detailed in section 5.4.5 of https://www.etsi.org/deliver/etsi\_ts/138300\_138399/138321/18.01.00\_60/ts\_138321v180100p.pdf}
+
+\section{Inflated BSR}
+
+\todo{Describe the mechanism whenever the send interval was smaller than an RTT, leading to bigger BSR so bigger grants, a lower latency but also some wasted capacity. }
+
+\section{Reordering timer}
+
+\todo{The misalignment between the send interval and the propagation delay leads to the sending of fragmented packets since the grants are always a bit bigger than the packet UE has to send. However, the gNB reordering timer is configured for terrestrial networks, so it expires before we have a chance of receiving the full picture.}
