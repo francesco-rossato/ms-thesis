@@ -1,73 +1,38 @@
 %!TEX root = ../main.tex
 
-\chapter{Analysis}
+\chapter{HARQ}
 \label{chp:analysis}
 
-\section{A section}
+\section{Concurrent processes limit}
 
-\tikzset{vertex style/.style={
-    draw=#1,
-    thick,
-    fill=#1!70,
-    text=white,
-    ellipse,
-    minimum width=2cm,
-    minimum height=0.75cm,
-    font=\small,
-    outer sep=3pt,
-  },
-  text style/.style={
-    sloped,
-    text=black,
-    font=\footnotesize,
-    above
-  }
-}
+One of the problems highlighted by the \ac{3GPP} technical report \cite{3gpp-tr-38.811} on the matter of non-terrestrial networks regards the maximum number of concurrent \ac{HARQ} processes. 
+
+\subsection{Processes explained}
+The details of \ac{HARQ} protocol implementation in the 5G \ac{NR} standard is extensively treated in many publications such as \cite{harq-wireless-communications-survey}. However, for the purpose of understanding what is a harq process and how it affects the throughput in a non-terrestrial scenario, a brief overview of a few key concepts is enough.
 
 \begin{figure}[ht]
     \centering
-    \begin{tikzpicture}[node distance=2.75cm,>={Stealth[]}]
-        \node[vertex style=cyan] (Rk) {Righteous Kill};
-        \node[vertex style=orange, above of=Rk,xshift=2em] (BD) {Bryan Dennehy}
-        edge [<-,cyan!60!blue] node[text style,above]{starring} (Rk);
-    \end{tikzpicture}
-    
-    \caption{Image created with TikZ} \label{fig:T1}
+    \includegraphics[width=0.7\textwidth]{res/harq-retx-scheme.png}
+    \caption{\ac{HARQ} retransmission diagram \cite{harq-wireless-communications-survey}}
+    \label{fig:harq_retx_scheme}
 \end{figure}
 
-\paragraph{}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-\begin{lstlisting}[language=Python, caption=Code snippet example]
-import numpy as np
-    
-def incmatrix(genl1,genl2):
-    m = len(genl1)
-    n = len(genl2)
-    M = None #to become the incidence matrix
-    VT = np.zeros((n*m,1), int)  #dummy variable
+\paragraph{}\ac{HARQ} is a stop-and-wait protocol, meaning that it is designed to wait for the arrival of previous packet's \ac{ACK} before sending the new one. While this enforces the delivery of ordered packets, it also brings the downside of severely underutilizing the channel capacity, wasting resources that could potentially be used for transmission instead \cite{3gpp-ts-38.214}.
 
-    test = "String"
-    
-    #compute the bitwise xor matrix
-    M1 = bitxormatrix(genl1)
-    M2 = np.triu(bitxormatrix(genl2),1) 
+This limitation can be overcome by the introduction of multiple concurrent processes.
 
-    for i in range(m-1):
-        for j in range(i+1, m):
-            [r,c] = np.where(M2 == M1[i,j])
-            for k in range(len(r)):
-                VT[(i)*n + r[k]] = 1;
-                VT[(i)*n + c[k]] = 1;
-                VT[(j)*n + r[k]] = 1;
-                VT[(j)*n + c[k]] = 1;
-                
-                if M is None:
-                    M = np.copy(VT)
-                else:
-                    M = np.concatenate((M, VT), 1)
-                
-                VT = np.zeros((n*m,1), int)
-    
-    return M
-\end{lstlisting}
+A \ac{HARQ} process starts when a \ac{TB} is passed to the \ac{HARQ} entity and finishes when the \ac{ACK} relative to that same \ac{TB} is received by the sender. After the \ac{ACK} is correctly received, the next \ac{TB} starts being processed. Considering a link with propagation delay $\tau_p$, the minimum active time for a process is therefore $2\tau_p$. 
+
+5G \ac{NR} standard allows the base station to configure the maximum number of concurrent \ac{HARQ} processes each user can have, with the default value being 8 and the maximum 16 \cite{3gpp-ts-38.300}. 
+
+\paragraph{Example} Consider an example scenario where each process tries to send a \ac{TB} at the maximum possible rate, every $2\tau_p$, to a \ac{LEO} satellite orbiting at 2.000Km, therefore having $\tau_p\approx6$ms. Assuming the best possible conditions with no need for retransmissions and assuming that the base station grants the \ac{UE} to the best possible clearance of 16 concurrent processes, the total send rate is of 16 transfer blocks every 12ms. In order to target a throughput of 50Mbps, the block size must therefore be of at least $$\frac{\textit{target throughput} \times 2\tau_p}{\textit{number of processes}} = 37,5Kb$$
+
+This is not a realistic option even for terrestrial networks, where the \ac{SNR} poses a less stringent constraint, let alone for non-terrestrial ones.
+
+
+\todo{Problem of harq concurrent processes: each process has a timeout of 100ms and the max number of processes is 100. A higher number of concurrent processes crashes the simulator. As the propagation delay increases and the sending interval decreases, we are forced to keep more harq processes concurrently active, therefore reducing the number of leftover slots for additional processes. Once we reach the critical value of 100, any other packet will crash the simulator.
+So, as we increase the throughput, we must also increase the number of harq processes, since there are mote packets concurrently in flight.}
+
+\todo{investigate the latency problem at 13ms propagation delay}
+\todo{explain how harq works}
