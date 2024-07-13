@@ -26,7 +26,7 @@ The simple installation of a greater number of base stations is not a viable sol
 
 In this scenario, \ac{NTNs} can act as redundant access methodology to decrease downtimes of terrestrial infrastructure, provide emergency communication services and also additional capacity when required. 
 
-\subsection{Long distances}
+\subsection{Long distances and sensors}
 Remote equipment, offshore plants and distribution grids will also benefit from the research carried out in this field, since providing terrestrial connectivity in those scenarios is a challenging task. The installation of an underwater optical fiber link to serve a single endpoint, such as an offshore power plant in the ocean, would bear a disproportional cost compared to the functions required, and maintenance would be another challenging and expensive task. 
 The deployment of a non-terrestrial network would provide connectivity on a global scale, therefore allowing internet access in isolated places without the need for a dedicated connection.
 
@@ -36,7 +36,8 @@ Consider now the problem of connecting of a number of sensors placed in a large 
 
 \section{Satellite types}
 Satellites are divided in three different categories depending on their orbiting altitude: \ac{GEO}, \ac{MEO} \ac{LEO} satellites. Each one has its own characteristics, as briefly described below.
-\subsection{\ac{GEO} satellites}
+
+\subsection{GEO satellites}
 orbiting at 35.786Km, \ac{GEO} satellites appear stationary since their orbiting period is the same as the Earth rotation period. This vastly simplifies the tracking for the ground equipment, since once the position of the \ac{UE} is known, the relative position of the satellite is known, too.
     
 Since \ac{GEO} satellites are geostationary, continuous coverage to a designated area can be provided using as little as a single satellite, while the use of non-\ac{GEO} satellites would require the deployment of a constellation, which is both more complex and more expensive.
@@ -48,12 +49,12 @@ The disadvantages of \ac{GEO} satellites are mainly linked to the large distance
 In addition to the positive aspects previously discussed, the larger cell footprint also means that a single satellite will be serving a massive number of users, so the total available capacity will have to be shared between a bigger number of actors, and the throughput experienced by each one of them will be reduced. 
 Moreover, the high number of users leads to a large rate of initial access  requests, with the possibility of channel saturation as described in \cite{3gpp-tr-38.811}.
 
-\subsection{\ac{LEO} satellites}
-Orbiting below the altitude of 2.000Km, \ac{LEO} satellites are the most promising solution in the realm of \ac{NTNs}.
+\subsection{LEO satellites}
+Orbiting below the altitude of 2.000Km, \ac{LEO} satellites are the most promising solution in the realm of \ac{NTNs} for a number of reasons hereby discussed.
     
 The lower altitude entails a shorter propagation delay, and the smaller coverage area of each satellite means that the total number of users that need to be served is smaller. 
 
-The cost per satellite is significantly smaller than \ac{GEO} and \ac{MEO} satellites. However, given that they are not geostationary, a large constellation is needed to provide a continuous service. As an example of those constellations, Fig. \ref{fig:starlink_constellation} depicts the \ac{LEO} satellites employed by Starlink\footnote{Starlink is a satellite internet constellation operated by Starlink Services, LLC, a wholly-owned subsidiary of American aerospace company SpaceX.}, with 4.808 units in service at the time of writing\footnote{Source: \href{https://satellitemap.space/}{\texttt{satellitemap.space}}}.
+The cost per satellite is significantly smaller than \ac{GEO} and \ac{MEO} satellites. However, given that they are not geostationary, a large constellation is needed to provide a continuous service, driving up the deployment costs significantly. As an example of those constellations, Fig. \ref{fig:starlink_constellation} depicts the \ac{LEO} satellites employed by Starlink\footnote{Starlink is a satellite internet constellation operated by Starlink Services, LLC, a wholly-owned subsidiary of American aerospace company SpaceX.}, with 4.808 units in service at the time of writing\footnote{Source: \href{https://satellitemap.space/}{\texttt{satellitemap.space}}}.
 
 \begin{figure}[ht]
     \centering
@@ -62,6 +63,9 @@ The cost per satellite is significantly smaller than \ac{GEO} and \ac{MEO} satel
     \label{fig:starlink_constellation}
 \end{figure}
 
+The smaller altitude at which \ac{LEO} satellites orbit enables the use of higher frequency bands, since the experienced path loss is smaller compared to \ac{GEO} satellites. This in turn allows for higher throughput, as detailed in \cite{satellite-communication-mmwave-giordani}
+
+The aforementioned solutions are not to be considered mutually exclusive. In fact, the multitude of possibilities that their combinations offer open to the study of various different scenarios, as detailed in \cite{potential-multilayered-nierarchical-ntn-wang}
 
 \subsection{Current solutions}
 Current solutions for non-terrestrial communication do exist, but they mostly rely on telecommunications satellites placed in the \ac{GEO}, at a height of 35.786 km. The distance that the signal has to travel offering limited throughput and large delays. While \ac{LEO} constellations (400 km to 2.000 km) have proven to be a valid alternative, providing higher throughput and lower latency \cite{main-features-5g-nr-ntn-yun}, they have the drawback of an increased Doppler shift due to their high speed relative to ground \cite{satellite-communication-mmwave-giordani}, and there is still no international standard with regard to the communication protocols to use. 
@@ -69,7 +73,7 @@ Current solutions for non-terrestrial communication do exist, but they mostly re
 \paragraph{}
 This scenario led \ac{3GPP} to identify some work to be done to integrate \ac{NTN} in cellular standards, calling for long-term research in this field \cite{satellite-communication-mmwave-giordani}. This work will mainly focus on the 
 
-\paragraph{}\todo{move this to state of the art} Focusing on the \ac{MAC} sublayer, the large propagation delay of satellite links affects different aspects, making the actual implementation not suited for a \ac{NTN} scenario. In the \ac{HARQ} protocol, the retransmission timeout is likely to expire before a single \ac{RTT}, leading to unnecessary retransmissions. Moreover, the limit on the maximum number of concurrent \ac{HARQ} processes leads to a stop-and-wait behaviour, which may increase the energy consumption \cite{3gpp-tr-38.811}. On the other hand, it has been noted that disabling \ac{HARQ} would lead to an even worse performance penalty, therefore requiring a redesign for \ac{NTN} \cite{5g-beyond-5g-ntn-trends-vanellicoralli}. Another 5G \ac{NR} protocol which is negatively impacted in \ac{NTN} is the initial access, since users at the centre of the cell face a smaller propagation delay with respect to users at the cell edge \cite{5g-beyond-5g-ntn-trends-vanellicoralli} \cite{applying-nr-technologies-in-ntn-lee}. As a result, preambles of \ac{UE}s placed near the cell edge may reach the satellite when the \ac{RACH} opportunity has already expired, which may lead to collisions. During the initial access phase, \ac{UE}s are not aware of their propagation delay, and the high mobility of \ac{gNB}s on \ac{LEO} satellites causes a non-negligible Doppler shift. Those factors vary with the relative position and speed between the \ac{UE} and the \ac{gNB}, and the protocols for initial access must be modified in \ac{NTN} to account for them \cite{ntn-from-5g-6g-hassan}. 
+\paragraph{}\todo{move this to state of the art} Focusing on the \ac{MAC} sublayer, the large propagation delay of satellite links affects different aspects, making the actual implementation not suited for a \ac{NTN} scenario. In the \ac{HARQ} protocol, the retransmission timeout is likely to expire before a single \ac{RTT}, leading to unnecessary retransmissions. Moreover, the limit on the maximum number of concurrent \ac{HARQ} processes leads to a stop-and-wait behaviour, which may increase the energy consumption \cite{3gpp-tr-38.811}. On the other hand, it has been noted that disabling \ac{HARQ} would lead to an even worse performance penalty, therefore requiring a redesign for \ac{NTN} \cite{5g-beyond-5g-ntn-trends-vanellicoralli}. Another 5G \ac{NR} protocol which is negatively impacted in \ac{NTN} is the initial access, since users at the center of the cell face a smaller propagation delay with respect to users at the cell edge \cite{5g-beyond-5g-ntn-trends-vanellicoralli} \cite{applying-nr-technologies-in-ntn-lee}. As a result, preambles of \ac{UE}s placed near the cell edge may reach the satellite when the \ac{RACH} opportunity has already expired, which may lead to collisions. During the initial access phase, \ac{UE}s are not aware of their propagation delay, and the high mobility of \ac{gNB}s on \ac{LEO} satellites causes a non-negligible Doppler shift. Those factors vary with the relative position and speed between the \ac{UE} and the \ac{gNB}, and the protocols for initial access must be modified in \ac{NTN} to account for them \cite{ntn-from-5g-6g-hassan}. 
 \paragraph{}
 It is clear that the future of mobile networks envisioned by \ac{3GPP} embraces \ac{NTN}s, and considerable work has to be done. Research will bear a high impact towards a more connected, equal opportunity world. 
 
