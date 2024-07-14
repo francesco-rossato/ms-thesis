@@ -1,0 +1,3 @@
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QWhen distances are large, solutions may either be the densification of radio stations or the use of a lower frequency in order to have a less severe propagation loss.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QFinally, the third retransmission is meant to be self-decodable.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QIf the redundancy bits are still not enough to recover the previous packet, or another error occurs, a self-decodable retransmission is triggered.\\E$"}
