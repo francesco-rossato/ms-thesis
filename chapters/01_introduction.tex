@@ -35,10 +35,19 @@ Consider now the problem of connecting of a number of sensors placed in a large 
 \paragraph{} Other scenarios where \ac{NTNs} can become useful in overcoming the limitation of their terrestrial counterpart are well described in \cite{ntn-6g-era-challenges-giordani} and \cite{potential-multilayered-nierarchical-ntn-wang}.
 
 \section{Satellite types}
+\label{sec:satellite-types}
 Satellites are divided in three different categories depending on their orbiting altitude: \ac{GEO}, \ac{MEO} \ac{LEO} satellites. Each one has its own characteristics, as briefly described below.
 
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.7\textwidth]{res/satellite-coverages.jpg}
+    \caption{Approximate coverage areas for satellites at different orbits\cite{sustainable-sat-com-6g}}
+    \label{fig:satellite_coverages}
+\end{figure}
+
 \subsection{GEO satellites}
-orbiting at 35.786Km, \ac{GEO} satellites appear stationary since their orbiting period is the same as the Earth rotation period. This vastly simplifies the tracking for the ground equipment, since once the position of the \ac{UE} is known, the relative position of the satellite is known, too.
+Orbiting at 35.786Km, \ac{GEO} satellites appear stationary since their period is the same as the Earth rotation period. This vastly simplifies the tracking for the ground equipment, since once the position of the \ac{UE} is known, the relative position of the satellite is known, too.
     
 Since \ac{GEO} satellites are geostationary, continuous coverage to a designated area can be provided using as little as a single satellite, while the use of non-\ac{GEO} satellites would require the deployment of a constellation, which is both more complex and more expensive.
 
@@ -67,8 +76,8 @@ The smaller altitude at which \ac{LEO} satellites orbit enables the use of highe
 
 The aforementioned solutions are not to be considered mutually exclusive. In fact, the multitude of possibilities that their combinations offer open to the study of various different scenarios, as detailed in \cite{potential-multilayered-nierarchical-ntn-wang}
 
-\subsection{Current solutions}
-Current solutions for non-terrestrial communication do exist, but they mostly rely on telecommunications satellites placed in the \ac{GEO}, at a height of 35.786 km. The distance that the signal has to travel offering limited throughput and large delays. While \ac{LEO} constellations (400 km to 2.000 km) have proven to be a valid alternative, providing higher throughput and lower latency \cite{main-features-5g-nr-ntn-yun}, they have the drawback of an increased Doppler shift due to their high speed relative to ground \cite{satellite-communication-mmwave-giordani}, and there is still no international standard with regard to the communication protocols to use. 
+\section{Current commercial solutions}
+Commercial solutions for satellite-based internet access have been available since a long time. However, the majority of internet service providers have been using \ac{GEO} satellites, orbiting at a height of 35.786 km, therefore presenting all the limitations discussed in \ref{sec:satellite-types}. The distance that the signal  to travel offering limited throughput and large delays. While \ac{LEO} constellations (400 km to 2.000 km) have proven to be a valid alternative, providing higher throughput and lower latency \cite{main-features-5g-nr-ntn-yun}, they have the drawback of an increased Doppler shift due to their high speed relative to ground \cite{satellite-communication-mmwave-giordani}, and there is still no international standard with regard to the communication protocols to use. 
 
 \paragraph{}
 This scenario led \ac{3GPP} to identify some work to be done to integrate \ac{NTN} in cellular standards, calling for long-term research in this field \cite{satellite-communication-mmwave-giordani}. This work will mainly focus on the 
