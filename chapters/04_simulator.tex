@@ -1,0 +1,29 @@
+%!TEX root = ../main.tex
+
+\chapter{Simulator}
+\label{chp:simulator}
+
+This chapter is focused on the discussion of the simulation software used to 
+\section{Simulator}
+The results presented in this work have been obtained using the ns-3 network simulator tool. Ns-3 is a discrete-events network simulator specifically targeted to the research world.
+
+There are a few reasons why this choice was made. First and foremost, the fact that this is a full-stack simulator played a crucial role, 
+
+\section{Scenario}
+The simulated scenario consisted of a simple setup including a single \ac{UE} ground terminal connected to a satellite acting as \ac{gNB}. The satellite is then connected via an ideal link with no latency and high throughput to a node that acts as second endpoint of the communication.
+
+The parameters of the satellite antenna follow the scenario 10 DL indicated in TR 38.321 \todo{insert reference} and are reported in the code snippets \ref{code:sat_parameters} and \ref{code:ue_parameters}.
+
+\begin{lstlisting}[language=C++, caption=Satellite antenna parameters, label=code:sat_parameters]
+    // Satellite parameters
+    double satEIRPDensity = 40;    // dBW/MHz
+    double satAntennaGain = 58.5;  // dB
+    double satAntennaDiameter = 5; // meters
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption=UE antenna parameters, label=code:ue_parameters]
+    // UE Parameters
+    double vsatAntennaGain = 39.7;       // dB
+    double vsatAntennaDiameter = 0.6;    // meters
+    double vsatAntennaNoiseFigure = 1.2; // dB 
+\end{lstlisting}
