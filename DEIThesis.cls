@@ -259,33 +259,33 @@
 
   % insert list of figures
   \phantomsection
-  \setcounter{page}{11}
+  \setcounter{page}{9}
   \addcontentsline{toc}{chapter}{\listfigurename}
   \listoffigures
   \cleardoublepage
 
   % insert list of tables
-  \phantomsection
-  \setcounter{page}{13}
-  \addcontentsline{toc}{chapter}{\listtablename}
-  \listoftables
-  \cleardoublepage
+  % \phantomsection
+  % \setcounter{page}{13}
+  % \addcontentsline{toc}{chapter}{\listtablename}
+  % \listoftables
+  % \cleardoublepage
 
   % insert list of algorithms
-  \phantomsection
-  \setcounter{page}{15}
-  \addcontentsline{toc}{chapter}{\listalgorithmname}
-  \listofalgorithms
+  % \phantomsection
+  % \setcounter{page}{15}
+  % \addcontentsline{toc}{chapter}{\listalgorithmname}
+  % \listofalgorithms
 
   % insert list of code snippets
-  \phantomsection
-  \setcounter{page}{17}
-  \addcontentsline{toc}{chapter}{\lstlistlistingname}
-  \lstlistoflistings
-  \cleardoublepage
+  % \phantomsection
+  % \setcounter{page}{17}
+  % \addcontentsline{toc}{chapter}{\lstlistlistingname}
+  % \lstlistoflistings
+  % \cleardoublepage
 
   % insert list of abbreviations/acronyms
-  \setcounter{page}{19}
+  \setcounter{page}{11}
   \acronyms
 }
 
@@ -447,9 +447,9 @@
   \input{frontmatter/abstract}
   
   % italian version
-  \cleardoublepage
-  \thispagestyle{empty}
-  \input{frontmatter/sommario}
+  % \cleardoublepage
+  % \thispagestyle{empty}
+  % \input{frontmatter/sommario}
 }
 
 \newcommand{\todo}[1]{
