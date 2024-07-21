@@ -3,30 +3,19 @@
 \chapter{State of the art}
 \label{chp:state_of_the_art}
 
-This chapter is focused on the discussion of the simulation software used to 
-\section{Simulator}
-The results presented in this work have been obtained using the ns-3 network simulator tool. Ns-3 is a discrete-events network simulator specifically targeted to the research world.
+\section{HARQ}
+\label{sec:state_of_the_art_harq}
+The main objective of telecommunication is the transfer of information between different actors. Modern systems aim at an efficient usage of the available resources, while trying to meet all the necessary requirements of application that is generating the data to be transferred. 
 
-There are a few reasons why this choice was made. First and foremost, the fact that this is a full-stack simulator played a crucial role, 
+The \ac{HARQ} protocol hereby described helps achieve a more efficient use of the available resources when errors occur, using an intelligent system of retransmissions that, in turn, lowers the error rate at the expense of a higher latency.
 
-\section{Scenario}
-The simulated scenario consisted of a simple setup including a single \ac{UE} ground terminal connected to a satellite acting as \ac{gNB}. The satellite is then connected via an ideal link with no latency and high throughput to a node that acts as second endpoint of the communication.
+The main building blocks of \ac{HARQ} are \ac{ARQ} and \ac{FEC}. The role of \ac{ARQ} is to automatically request the retransmission of the whole packet when the receiver detects the presence of errors, while \ac{FEC} is tasked to correct such errors using redundancy bits added to the packet by the transmitter. The joint operation of those two protocols makes the foundation of \ac{HARQ}, currently in use in all the most popular network standards such as 4G, Wi-Fi and 5G \cite{3gpp-38-series}.
 
-The parameters of the satellite antenna follow the scenario 10 DL indicated in TR 38.321 \todo{insert reference} and are reported in the code snippets \ref{code:sat_parameters} and \ref{code:ue_parameters}.
+\paragraph{Automatic repeat request} \ac{ARQ} protocol 
 
-\begin{lstlisting}[language=C++, caption=Satellite antenna parameters, label=code:sat_parameters]
-    // Satellite parameters
-    double satEIRPDensity = 40;    // dBW/MHz
-    double satAntennaGain = 58.5;  // dB
-    double satAntennaDiameter = 5; // meters
-\end{lstlisting}
+Requirements can concern the necessary throughput, the maximum tolerated delay between the transmission and the reception, the error rate and so on.
 
-\begin{lstlisting}[language=C++, caption=UE antenna parameters, label=code:ue_parameters]
-    // UE Parameters
-    double vsatAntennaGain = 39.7;       // dB
-    double vsatAntennaDiameter = 0.6;    // meters
-    double vsatAntennaNoiseFigure = 1.2; // dB 
-\end{lstlisting}
 
+Such information may be subject to various different constraints. since it may be generated with a very high rate, so a large throughput is needed to transfer it, 
 
 \paragraph{}\todo{move this to state of the art} Focusing on the \ac{MAC} sublayer, the large propagation delay of satellite links affects different aspects, making the actual implementation not suited for a \ac{NTN} scenario. In the \ac{HARQ} protocol, the retransmission timeout is likely to expire before a single \ac{RTT}, leading to unnecessary retransmissions. Moreover, the limit on the maximum number of concurrent \ac{HARQ} processes leads to a stop-and-wait behaviour, which may increase the energy consumption \cite{3gpp-tr-38.811}. On the other hand, it has been noted that disabling \ac{HARQ} would lead to an even worse performance penalty, therefore requiring a redesign for \ac{NTN} \cite{5g-beyond-5g-ntn-trends-vanellicoralli}. Another 5G \ac{NR} protocol which is negatively impacted in \ac{NTN} is the initial access, since users at the center of the cell face a smaller propagation delay with respect to users at the cell edge \cite{5g-beyond-5g-ntn-trends-vanellicoralli} \cite{applying-nr-technologies-in-ntn-lee}. As a result, preambles of \ac{UE}s placed near the cell edge may reach the satellite when the \ac{RACH} opportunity has already expired, which may lead to collisions. During the initial access phase, \ac{UE}s are not aware of their propagation delay, and the high mobility of \ac{gNB}s on \ac{LEO} satellites causes a non-negligible Doppler shift. Those factors vary with the relative position and speed between the \ac{UE} and the \ac{gNB}, and the protocols for initial access must be modified in \ac{NTN} to account for them \cite{ntn-from-5g-6g-hassan}. 
