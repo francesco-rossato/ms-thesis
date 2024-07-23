@@ -41,6 +41,8 @@
 
 % -- USEFUL PACKAGES --
 
+\usepackage[normalem]{ulem}
+\useunder{\uline}{\ul}{}
 % spacings (\onehalfsize, \doublesize)
 \RequirePackage{setspace}
 
