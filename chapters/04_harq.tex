@@ -1,7 +1,14 @@
 %!TEX root = ../main.tex
 
 \chapter{HARQ}
-\label{chp:analysis}
+\label{chp:harq}
+
+\section{HARQ overview}
+The main objective of telecommunication technologies is the transfer of information between different actors. Modern systems aim at an efficient usage of the available resources, while trying to meet all the necessary requirements of application that is generating the data to be transferred. 
+
+The \ac{HARQ} protocol hereby described helps achieve a more efficient use of the available resources when errors occur, using an intelligent system of retransmissions that, in turn, lowers the error rate at the expense of a higher latency.
+
+The main building blocks of \ac{HARQ} are \ac{ARQ} and \ac{FEC}. The role of \ac{ARQ} is to automatically request the retransmission of the whole packet when the receiver detects the presence of errors, while \ac{FEC} is tasked to correct such errors using redundancy bits added to the packet by the transmitter. The joint operation of those two protocols makes the foundation of \ac{HARQ}, currently in use in all the most popular network standards such as 4G, Wi-Fi and 5G \cite{3gpp-38-series}. \ac{HARQ} peculiarity resides in the fact that it avoids the retransmission of the whole packet in case of errors, preferring to send additional redundant information to help the decoding process.
 
 \section{Concurrent processes limit}
 
@@ -29,11 +36,18 @@ This is the most important feature of \ac{HARQ} protocol: it does not discard th
 
 Finally, if even this retransmission is affected by errors and the combination of the information received so far is not enough to complete the decoding of the \ac{TB}, additional information is sent. After this fourth interaction, no further attempts are made to correct the packet \cite{5g-nr-harq-sharetechnote}.
 
-\paragraph{} The various transmissions and retransmissions being made by the protocol are called \ac{RV} 
+\paragraph{} The various transmissions and retransmissions being made by the protocol are called \ac{RV}, and are numbered from 0 to 3. Their order can vary depending on the implementation and configuration. Figure \ref{fig:harq_retx_scheme_2} shows another example where the redundancy versions are ordered as 0, 3, 2.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\textwidth]{res/harq-retx-scheme-2.png}
+    \caption{\ac{HARQ} diagram with different RVs\cite{5g-nr-harq-sharetechnote}}
+    \label{fig:harq_retx_scheme_2}
+\end{figure}
 
 
 \subsubsection{Stop and wait}
-\paragraph{} The presented behavior means that \ac{HARQ} is a stop-and-wait kind of protocol, since it is designed to wait for the arrival of previous packet's \ac{ACK} before sending the new one. While this enforces the delivery of ordered packets, it also brings the downside of severely underutilizing the channel capacity, wasting resources that could potentially be used for transmission instead \cite{3gpp-ts-38.214}.
+\paragraph{} The presented behavior means that \ac{HARQ} is a stop-and-wait kind of protocol, since it is designed to wait for the arrival of previous packet's \ac{ACK} before sending the new one. While this enforces the delivery of ordered packets, it also brings the downside of severely underutilizing the channel capacity, wasting resources that could potentially be used for transmission instead \cite{3gpp-ts-38.214}. Figures \ref{fig:harq_retx_scheme_2} and \ref{fig:harq_retx_scheme} highlight this pattern.
 
 This limitation is overcome by the introduction of multiple concurrent processes.
 
