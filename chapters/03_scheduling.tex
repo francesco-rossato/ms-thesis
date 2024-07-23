@@ -76,6 +76,7 @@ The implementation of the 5G scheduler in ns-3 is designed to allocate resources
 \paragraph{Example} Consider a scenario with a propagation delay $\tau_p$ of 6ms. The \ac{UE} sends a request for uplink resources at time $t_0$ since it has some data to send. In the terrestrial scheduler implementation, the \ac{gNB} would receive such request at $t_0+\tau_p=6\textit{ms}$ and, provided that other transmissions have not been scheduled yet, grant the \ac{UE} the possibility to transmit in the following slot, which will start after 1ms at $t_0+\tau_p+t_{\textit{slot}}=7\textit{ms}$. However, this grant will reach the \ac{UE} only after another propagation delay, therefore at $t_0+2\tau_p=12\textit{ms}$, when it will already be too late.
 
 \subsection{Proposed solution}
+\label{ss:propdelay-problem-sol}
 The implemented solution assumes that the scheduler has knowledge of the propagation delay. This is a reasonable assumption since systems such as GPS already rely on a precise estimation of the delay between the user on the ground and the satellite.
 
 The scheduling then proceeds as normal with the only difference being that the information regarding the propagation delay is used to postpone the allocated symbols. 
@@ -183,10 +184,37 @@ The described behavior caused the physical throughput to be significantly higher
 
 \subsection{Proposed solution}
 
-Many different approaches could be undertaken in order to tackle this problem. Nonetheless, a comprehensive study detailing upsides and downsides of each of them is outside the scope of this work. 
+Various different approaches could be undertaken in order to tackle this problem. Nonetheless, a comprehensive study detailing upsides and downsides of each of them is outside the scope of this work. 
 
-The implemented solution consists of a modification to the \ac{SR} algorithm that limits the requests to only account for the newly received data, therefore disabling the cumulative behavior.
+The implemented solution consists of a modification to the \ac{SR} algorithm that limits the requests to only account for the newly received data, therefore disabling the cumulative behavior. If a packet is already in the buffer when a new one arrives, the scheduling request only asks the size of the second packet to be allocated.
+
+As mentioned before, the implementation of a smarter algorithm, capable of predicting the traffic needs of the \ac{UE} could be employed to reduce the latency. 
 
 \section{Reordering timer}
 
-\todo{The misalignment between the send interval and the propagation delay leads to the sending of fragmented packets since the grants are always a bit bigger than the packet UE has to send. However, the gNB reordering timer is configured for terrestrial networks, so it expires before we have a chance of receiving the full picture.}
+\subsection{Problem description}
+\paragraph{Fragmentation}
+The packets interarrival times are not necessarily multiples of the propagation delay, and the resources that the g-NodeB grants to the \ac{UE} are usually a few bytes larger than the packet size. This happens because, even though 5G scheduling can be done on a much finer granularity than 4G scheduling, the base station still cannot grant values that are smaller than a single symbol, so the general rule is to allocate the minimum number of symbols whose cumulative size is greater or equal to the requested allowance.
+
+This misalignment between packet size and transmission opportunities allows for packets to be split in smaller pieces. If two packets of 200B each are waiting in the buffer to be transmitted, and a resource grant for 220B arrives at the \ac{UE}, the first packet can be completely transmitted, but it would be wasteful not to use also the 20 additional bytes that were granted, so the second packet is split and only its first 20B are transmitted. The remaining 180B will wait for the next opportunity.
+
+\paragraph{PDCP}
+The detailed implementation of the \ac{PDCP} layer can be found in the \ac{3GPP} technical specification \cite{pdcp-spec-3gpp}, while the diagram describing its functionality has been reported in Figure \ref{fig:pdcp-functionalities}. This layer offers reordering services by employing a sequence number, integrity protection and ciphering if the packet in question is associated to a \ac{PDCP} \ac{SDU}, and duplication and routing when operating split bearers.
+
+The observed problem, as the propagation delay increases, is related to an expiring timer when reassembling the packets at the \ac{PDCP} layer. The so-called reordering timer (t-reordering), which despite the name also affects the recomposition of fragmented packets, is not configured for the use in a non-terrestrial scenario, and it expired before the second half of the packet managed to arrive. 
+
+This re-ordering functionality of \ac{PDCP} layer is in place to ensure a sequential delivery of packets to the upper layers. In case of missing packets, the behavior is to wait until either the packets arrive or the reordering timer expires \cite{efficient-reassembly-pdcp}. It was observed that this timer also started when the \ac{PDCP} layer was waiting for the arrival of the second part of a fragmented packet. However, due to the high propagation delay, the arrival of the second half was not possible before the timer expiration, leading to the packet being discarded.
+
+Should the reordering timer be set too high, it may cause additional latency, and, if set too low, it might cause many packets to be discarded, as in the case that was simulated during this work \cite{efficient-reassembly-pdcp}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\textwidth]{res/pdcp-functionality.png}
+    \caption{PDCP diagram \cite{pdcp-spec-3gpp}}
+    \label{fig:pdcp-functionalities}
+\end{figure}
+
+\subsection{Proposed solution}
+Since the problem is linked to the expiration of a timer, and the propagation delay of \ac{NTNs} is much larger than the terrestrial case, the implemented solution consisted in the increase of the default timer value to account for the additional delays.
+
+Since the use of timers always bear trade-offs depending on their value, in this case either being a higher latency or a higher packet discard ratio, there can not be a one-fits-all approach: the differences in propagation delays between satellites orbiting at different altitudes are so drastic that the implementation of a single default value would lead to suboptimal performances in every possible scenario. A much better approach would be to dynamically adapt the reordering timer accounting for the estimated propagation delay, similarly as the proposed solution for the scheduling problems in Section \ref{ss:propdelay-problem-sol}.
