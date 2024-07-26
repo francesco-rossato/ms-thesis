@@ -3,6 +3,17 @@
 \chapter{Introduction}
 \label{chp:intro}
 
+\section{Structure of this work}
+The following work is structured as followingly described.
+
+\begin{itemize}
+    \item \textbf{Chapter \ref{chp:intro}} consists of a general introduction to non-terrestrial networks. Their characteristics are hereby described, and some scenarios are provided where their application would be beneficial. The three main categories of telecommunication satellites are presented, and their characteristics evaluated. Finally, an overview of the possible payload design choices are also presented, as well as a brief description of multilayered networks.
+    \item \textbf{Chapter \ref{chp:ns3}} describes NS-3, the employed network simulator software, highlighting the NTN channel module used as well as its implementation. Finally, this chapter presents the simulated scenario, describing the characteristics and the parameters of all the involved devices.
+    \item \textbf{Chapter \ref{chp:scheduling_problems}} is about the scheduler. The 5G scheduler and its operations in time division duplexing are briefly described, then the main design flaws that arose during the simulations in non-terrestrial scenarios are documented, and the implemented solutions are carefully explained. Some additional observations that were not implemented are hereby described as well, possibly providing some potential starting points for future studies.
+    \item \textbf{Chapter \ref{chp:harq}} delves into the problems linked to the operation of the HARQ protocol in a non-terrestrial scenario, discussing the effects of propagation delay as well as the impact of different values of SNR. Some solutions are proposed and evaluated using the NS-3 network simulator.
+    \item \textbf{Chapter \ref{chp:conclusions}} finally reports the conclusions of this work, highlighting how the scheduler and HARQ are affected by the characteristics of a non-terrestrial link, and providing some cues that can be evaluated in future studies.
+\end{itemize}
+
 \section{The non-terrestrial era}
 The \ac{3GPP}\footnote{\href{https://www.3gpp.org}{\texttt{3gpp.org}}}, the standardization body tasked with the development of protocols for mobile communication networks, recently put a great emphasis on the importance of the integration of different access technologies along with the existing terrestrial mobile telecommunication infrastructure \cite{3gpp-tr-21.917}.
 
@@ -11,7 +22,14 @@ In the specific, the envisioned future for mobile communications, starting with 
 To give a proper definition, the term \ac{NTNs} refers to a category of networks where at least one link is routed via an aerial or space-borne vehicle such as \ac{HAPs}, \ac{UAVs} or telecommunication satellites.
 
 \section{Limitations of terrestrial networks}
-In order to explain the motivations behind the choice of expanding the current terrestrial infrastructure, the following paragraphs present a few scenarios where current terrestrial infrastructure has some limitations, failing to provide an adequate service, and \ac{NTNs} can be used to provide a better coverage.
+In order to explain the motivations behind the choice of expanding the current terrestrial infrastructure, the following sections present a few scenarios where current terrestrial infrastructure has some limitations, failing to provide an adequate service, and \ac{NTNs} can be used to provide a better coverage.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\textwidth]{res/sat-usecases.png}
+    \caption{NTN use cases \href{https://telecominfraproject.com/ntcs/}{telecominfraproject.com}}
+    \label{fig:sat-use-cases}
+\end{figure}
 
 \subsection{Remote places}
 While \ac{TN} make the well-established foundation of today’s mobile communication infrastructure, their own nature poses some intrinsic limitations to their deployment in certain scenarios, especially in rural and remote areas. Conditions such as harsh terrain and geographical impediments act as natural barriers to the deployment of terrestrial infrastructure. Moreover, the need for ground equipments such as base stations and networking gear require the presence of an already established and reliable power grid, further driving up the costs that telecommunication companies would have to sustain.
@@ -89,6 +107,7 @@ The propagation delay can vary a lot depending on the altitude, but it is larger
 Their peculiarity of presenting many of the downsides that characterize both \ac{GEO} and \ac{LEO} satellites, while being unable to offer any substantial benefit over their competitors besides the need for a smaller constellation, makes them less than ideal candidates for applications in non-terrestrial networks.
 
 \subsection{LEO satellites}
+\label{sec:leo}
 Orbiting below the threshold altitude of 2.000Km, \ac{LEO} satellites are the most promising solution in the realm of \ac{NTNs} for a number of reasons hereby discussed.
 
 \paragraph{Advantages}
@@ -127,6 +146,7 @@ In \cite{potential-multilayered-nierarchical-ntn-wang} it has been shown that th
 When implementing a non-terrestrial network, an important parameter to be decided is the type of payload to use.
 
 \subsection{Bent-pipe payload}
+\label{sec:bent-pipe-payload}
 This is the simplest approach, where the role of the satellite consist only of  repeating the signal received from the \ac{UE} on the ground towards the terrestrial gateway. Configurations such as the one depicted in Fig. \ref{fig:ntn-bent-pipe} go by the name of bent pipe payloads and are characterized by the presence of a terrestrial g-NodeB, while the satellite has the sole purpose of providing a transparent link with the \ac{UE}.
 
 While such solutions are by far the simplest in terms of payload complexity, the main drawback is the even longer experienced latency, since communications between users served by the same satellite would also have to be routed through the terrestrial gateway, increasing the latency by at least two times the propagation delay.
@@ -141,6 +161,7 @@ Other, smarter, solutions are able to route at least part of the inbound traffic
 \end{figure}
 
 \subsection{On-board g-NodeB}
+\label{sec:onboard-gnb}
 A slightly more sophisticated approach foresees the installation of g-NodeB capabilities directly onto the satellite payload. This has the benefit of reducing the experienced latency in some cases, and reduce the utilization of the feeder link. Certain protocols, designed to terminate at the \ac{gNB}, can in this case reach their designated endpoint without necessitating to be routed back to the ground gateway.
 
 Figure \ref{fig:ntn-gnb-onboard} from \cite{3gpp-tr-38.811} shows the architecture of a \ac{NTN} using access network based on satellites with \ac{gNB} on board as payload.
@@ -153,6 +174,8 @@ Figure \ref{fig:ntn-gnb-onboard} from \cite{3gpp-tr-38.811} shows the architectu
 \end{figure}
 
 \section{Available commercial solutions}
+\paragraph{Legacy solutions}
 Commercial solutions first concerning satellite-based phone calls and successively evolved to provide internet access have been available since a long time. However, the majority of this legacy infrastructure makes use of \ac{GEO} satellites, therefore presenting all the limitations discussed in section \ref{sec:satellite-types}, offering limited throughput and large delays.
 
-While commercial solutions using \ac{LEO} satellites have been successfully deployed, there are many proprietary protocols involved, and until now no internationally agreed standard has been defined. 
+\paragraph{Recent developments}
+While different commercial solutions using \ac{LEO} satellites have been successfully deployed so far, with notable examples such as the one presented in section \ref{sec:leo}, all of them make use of many proprietary protocols to allow for the communication to take place, and up until now no internationally agreed standard has been defined. 
