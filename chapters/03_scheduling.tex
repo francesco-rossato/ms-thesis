@@ -13,7 +13,7 @@ As the name suggests, the main task of the scheduler is to allocate resources to
 \subsubsection{5G channels}
 The \ac{NR} standard comprises the usage of several channels depending on the type of data to be sent. The medium access control layer is a sort of intermediary, using channels provided by the underlying physical layer and providing the so-called logical channels to the upper layers.
 
-A brief overview of such channels can be found in Table \ref{tab:nr_channels_phy}, listing the ones provided by the physical layer, and in Table \ref{tab:nr_channels_mac}, listing the ones provided by the \ac{MAC} layer. Figure \ref{fig:nr-types-channels} provides a visual clue at the separation in place between the channels at different levels of the protocol stack.
+A brief overview of such channels can be found in Table \ref{tab:nr_channels_phy}, listing the ones provided by the physical layer, and in Table \ref{tab:nr_channels_mac}, listing the ones provided by the \ac{MAC} layer. Figure \ref{fig:nr-types-channels} provides a visual clue at the separation in place between the channels at different levels of the protocol stack, while Figure \ref{fig:nr-channel-mapping} shows how channels are mapped when transitioning between levels.
 
 \begin{table}[ht]
     \centering
@@ -53,8 +53,15 @@ Different channels are used to convey messages such as the notification of an im
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.9\textwidth]{res/nr-types-channels.png}
-    \caption{Different types of channels used in 5G, courtesy of \href{https://www.keysight.com/}{ Keysight technologies}}
+    \caption{Different types of channels used in 5G, courtesy of \href{https://www.keysight.com/}{Keysight technologies}}
     \label{fig:nr-types-channels}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\textwidth]{res/channels.png}
+    \caption{Mapping between channels at different levels, courtesy of \cite{5g-ch-devopedia}.}
+    \label{fig:nr-channel-mapping}
 \end{figure}
 
 \subsection{TDD operation}
