@@ -130,29 +130,128 @@ Furthermore, the different scenarios that the \ac{UE} can experience also have a
     \begin{tabular}{cllll}
     \hline
     {\ul \textbf{Case}} & \multicolumn{1}{c}{{\ul \textbf{Orbit}}} & \multicolumn{1}{c}{{\ul \textbf{Terminal}}} & \multicolumn{1}{c}{{\ul \textbf{Band}}} & \multicolumn{1}{c}{{\ul \textbf{Polarization Reuse}}} \\ \hline
-    1                   & GEO                                      & VSAT                                        & Ka                                      & Disabled                                              \\ \hline
-    2                   & GEO                                      & VSAT                                        & Ka                                      & Enabled                                               \\ \hline
-    3                   & GEO                                      & VSAT                                        & Ka                                      & Enabled                                               \\ \hline
-    4                   & GEO                                      & Handheld                                    & S                                       & Disabled                                              \\ \hline
-    5                   & GEO                                      & No                                          & Yes                                     & Enabled                                               \\ \hline
-    6                   & LEO-600                                  & Yes                                         & Yes                                     & Disabled                                              \\ \hline
-    7                   & LEO-600                                  & VSAT                                        & Ka                                      & Enabled                                               \\ \hline
-    8                   & LEO-600                                  & VSAT                                        & Ka                                      & Enabled                                               \\ \hline
-    9                   & LEO-600                                  & Handheld                                    & S                                       & Disabled                                              \\ \hline
-    10                  & LEO-600                                  & Handheld                                    & S                                       & Enabled                                               \\ \hline
-    11                  & LEO-1200                                 & VSAT                                        & Ka                                      & Disabled                                              \\ \hline
-    12                  & LEO-1200                                 & VSAT                                        & Ka                                      & Enabled                                               \\ \hline
-    13                  & LEO-1200                                 & VSAT                                        & Ka                                      & Enabled                                               \\ \hline
-    14                  & LEO-1200                                 & Handheld                                    & S                                       & Disabled                                              \\ \hline
-    15                  & LEO-1200                                 & Handheld                                    & S                                       & Enabled                                               \\ \hline
+    1  & GEO      & VSAT     & Ka & Disabled \\ \hline
+    2  & GEO      & VSAT     & Ka & Enabled  \\ \hline
+    3  & GEO      & VSAT     & Ka & Enabled  \\ \hline
+    4  & GEO      & Handheld & S  & Disabled \\ \hline
+    5  & GEO      & Handheld & S  & Enabled  \\ \hline
+    6  & LEO-600  & VSAT     & Ka & Disabled \\ \hline
+    7  & LEO-600  & VSAT     & Ka & Enabled  \\ \hline
+    8  & LEO-600  & VSAT     & Ka & Enabled  \\ \hline
+    9  & LEO-600  & Handheld & S  & Disabled \\ \hline
+    10 & LEO-600  & Handheld & S  & Enabled  \\ \hline
+    11 & LEO-1200 & VSAT     & Ka & Disabled \\ \hline
+    12 & LEO-1200 & VSAT     & Ka & Enabled  \\ \hline
+    13 & LEO-1200 & VSAT     & Ka & Enabled  \\ \hline
+    14 & LEO-1200 & Handheld & S  & Disabled \\ \hline
+    15 & LEO-1200 & Handheld & S  & Enabled  \\ \hline
     \end{tabular}
     \caption{3GPP scenarios for NTN \label{tab:scenarios}}
     \end{table}
 
-\subsection{ns-3 implementation}
-The SIGNET research group at the University of Padova recently implemented a non-terrestrial channel model\footnote{The code is available at the following repository: \href{https://gitlab.com/mattiasandri/ns-3-ntn/-/tree/ntn-dev?ref_type=heads}{gitlab.com/mattiasandri}} for the ns-3 network simulator based on the \ac{3GPP} specifications described in the standard \cite{3gpp-tr-38.811}.
-This channel model enables full-stack end-to-end simulations considering different \ac{NTN} scenarios \cite{Sandri_2023}.
+\subsection{NS-3 channel model implementation}
+
+\paragraph{}
+Work on a NS-3 module to allow for a better integration and simulation of communication in non-terrestrial scenarios are already in progress, and considerable effort has been put in the realization of a non-terrestrial channel model\footnote{The code is available at the following repository: \href{https://gitlab.com/mattiasandri/ns-3-ntn/-/tree/ntn-dev?ref_type=heads}{gitlab.com/mattiasandri}}.
+
+The implementation of the non-terrestrial channel model required the modification and the creation of some ns-3 classes. Such work is extensively described in \cite{Sandri_2023}, while a brief overview is hereby reported.
+
+\subsubsection{Modified classes}
+\begin{itemize}
+    \item \texttt{ThreeGppChannelModel}: different parameters were introduced in order for this class to be able to correctly characterize the non-terrestrial use case. The large number of \ac{NTN}-related parameters made necessary the use of data structures such as maps to store them, and the mobility model of both the satellite and the \ac{UE} have been integrated in the computation of the small scale parameters returned by the class.
+    \item \texttt{GeographicPositions}: class tasked with the various conversions between different coordinates systems such as longitude, latitude and altitude, the Geocentric Cartesian system (also called Earth Centric Earth Fixed or ECEF), and the local tangent plane coordinate system expressing the position in North, East and Up coordinates \cite{wiki_coords}. All those three systems are depicted in Fig. \ref{fig:coord-syst}.
+\end{itemize}
+\subsubsection{New classes}
+\begin{itemize}
+    \item \texttt{ThreeGppNTNScenarioChannelConditionModel}: the main task of this class is to store the channel state and condition. Four new classes were written to store the four possible scenarios described by \ac{3GPP}:
+    \begin{itemize}
+        \item Dense urban,
+        \item urban,
+        \item suburban,
+        \item rural
+    \end{itemize}
+    \item \texttt{ThreeGppNTNScenarioPropagationLossModel}: once again, four different scenarios are implemented in as many classes. Such classes are tasked with the computation of the total path loss, which includes contributions from the standard free space path loss, atmospheric absorption, scintillation, fading and clutter loss.
+    \item \texttt{GeocentricConstantPositionMobilityModel}: mainly helps position \ac{UE}s on the Earth surface in an easier way by allowing them to be input in a more natural coordinate set. Conversions amongst different systems are done using the \texttt{GeographicPositions} class described above.
+    \item \texttt{CircularApertureAntennaModel}: a more precise implementation of the default ns-3' parabolic antenna model, this time making use of a newer and more efficient C++ function for the computation of Bessel functions required when considering the radiation pattern of aperture antennas \cite{rad-patterns}.
+\end{itemize}
+
+
+
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{res/coord_systems.png}
+    \caption{Showcase of different coordinates systems \cite{wiki_coords}}
+    \label{fig:coord-syst}
+\end{figure}
+
+\subsubsection{Use in this work}
+\paragraph{}
+All the aforementioned implementation is based on the \ac{3GPP} specifications as detailed in the standard \cite{3gpp-tr-38.811}, and the resulting channel model enables full-stack end-to-end simulations considering different \ac{NTN} scenarios \cite{Sandri_2023}.
+
+This work can therefore benefit from an already existing standard implementation of the channel model, a crucial point for its aim of providing a simulation of how the complete \ac{NR} protocol stack would behave in such a challenging scenario. 
 
 \section{Implemented scenario}
 
-This section aims to describe the reference scenario that was implemented in the ns-3 simulator in order to test the feasibility of the implementation of 5G \ac{NR} protocol suite in a non-terrestrial communication setting. 
+This section aims at describing the reference scenario that was implemented in the ns-3 simulator in order to test the \ac{NR} protocol suite in a non-terrestrial communication setting.
+
+\subsection{Network topology}
+The simple network setup is depicted in Fig. \ref{fig:sim-scenario}consisted of the following elements:
+\begin{itemize}
+    \item \textbf{Packet source}: application installed on the user equipment that generates packets with a specified periodicity. Both the generation rate and the packets' size can be varied by acting on their respective parameters. All the other variables that can be controlled are listed in the code snippet \ref{code:ue_parameters}
+    \item \textbf{UE antenna}: the transmission of data is performed by mean of a \ac{vSAT} antenna placed at the \ac{UE} side. The main parameters of such antenna are found in the code snippet \ref{code:tx_parameters}.
+    \item \textbf{Non-terrestrial link}: link connecting the \ac{UE} placed on the ground with the \ac{gNB}. This wireless link is characterized its propagation delay, bandwidth and frequency. However, since it is the aim of this work to study the effects of propagation delay, on the protocol suite, the other two parameters remained constant across all the simulations. The list of parameters can be found in the code snippet \ref{code:link_parameters}.
+    \item \textbf{g-NodeB}: the adopted approach is to incorporate the g-NodeB into the satellite payload, therefore adopting the configuration described in section \ref{sec:onboard-gnb}. This decision was made since the high one-way propagation delays are enough to cause some involved protocols to start malfunctioning. Adopting the bent-pipe configuration described in \ref{sec:bent-pipe-payload} would have resulted in effectively doubling the delay between \ac{UE} and \ac{gNB}. The satellite aperture antenna parameters follow the ones specified in the scenario named "10 DL" described in \cite{3gpp-tr-38.821}, and are listed in the code snippet \ref{code:sat_parameters}.
+    \item \textbf{High performance link}: link connecting the g-NodeB to the packet sink. This is part of 5G core network, and it shall not be causing any additional problems, since that would be out of the scope of this work. This link was therefore meant to be as close as possible to an ideal one, with a capacity of 100Gb/s, a \ac{MTU} of 1500B and a delay of a single microsecond.
+    \item \textbf{Remote host}: packet sink representing the destination node of all the packets generated at the \ac{UE}.
+\end{itemize}
+
+
+
+\begin{lstlisting}[language=C++, caption=Application and UE configuration parameters, label=code:ue_parameters]
+    bool enableNagle = false;  // whether to enable Nagle's algorithm
+    bool enableHarq = false;   // whether to enable HARQ protocol
+    uint32_t numHarq = 100;    // max number of concurrent HARQ processes
+    uint32_t harqTimeout = 10; // timeout for HARQ processes
+    bool rrcIdeal = false;     // use ideal version of RRC protocol
+    double tcpMinRto = 200;             // minimum TCP RTO
+    uint32_t tcpBufSize = 131072 * 100; // TCP buffer size
+    double ipv4FrExpTimeout = 200;      // IPv4 fragment expiration timeout
+    double perr = 0.1;                  // target error probability when transmitting PHY-level packets
+
+    // Application parameters
+    std::string transportPrtcl = "UDP"; // Whether to use UDP or TCP
+    uint32_t numPackets = 2000;         // max number of packets to be sent
+    double appStartTimeSec = 0.5;       // application start time
+    double appStopTimeSec = 5.5;        // application stop time
+    double simStopTimeSec = 6;          // simulation stop time
+    uint32_t packetSizeBytes = 200;     // application packets' size
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption=UE antenna parameters, label=code:tx_parameters]
+    // UE Parameters
+    double vsatAntennaGain = 39.7;       // dB
+    double vsatAntennaDiameter = 0.6;    // meters
+    double vsatAntennaNoiseFigure = 1.2; // dB 
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption=Satellite antenna parameters, label=code:sat_parameters]
+    // Satellite parameters
+    double satEIRPDensity = 40;    // dBW/MHz
+    double satAntennaGain = 58.5;  // dB
+    double satAntennaDiameter = 5; // meters
+    double distance = -1;          // height of the satellite in km
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption=Non-terrestrial link parameters, label=code:link_parameters]
+    uint64_t propDelay = 6;     // propagation delay in ms
+    double frequency = 20e9;    // link carrier frequency
+    double bandwidth = 400e6;   // link bandwidth
+\end{lstlisting}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{res/sim-scenario.png}
+    \caption{Network simulation scenario}
+    \label{fig:sim-scenario}
+\end{figure}
