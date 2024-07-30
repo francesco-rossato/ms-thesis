@@ -4,7 +4,7 @@
 \label{chp:ns3}
 
 \paragraph{}
-The study behind this work required a thorough evaluation of a multitude of different non-terrestrial communication scenarios, that in turn required an extensive simulation campaign. Furthermore, the low-level nature of the issues that were expected to be found led to the need for a simulator that allowed access to the protocols' core implementation to be able to modify their behavior if needed. A simple API-level access to some protocols' attributes would have been not sufficient to implement the suggested modifications.
+The study behind this work required a thorough evaluation of a multitude of different non-terrestrial communication scenarios, that in turn required an extensive simulation campaign. Furthermore, the low-level nature of the issues that were expected to be found led to the need for a simulator that allowed access to the protocols' core implementation to be able to modify their behavior if needed. A simple API-level access to some protocols' attributes would have been not sufficient to implement all the suggested modifications.
 
 \section{Description}
 \label{sec:ns3_desc}
@@ -16,16 +16,16 @@ The study behind this work required a thorough evaluation of a multitude of diff
     \label{fig:ns3-logo}
 \end{figure}
 
-Being a modular, extensible, community-supported, full-stack network software simulation tool based on a discrete event approach, the ns-3 simulator was the software of choice to conduct the testing campaigns. It is an open source project, licensed under the GNU GPLv2 license, meaning that the condition of being able to have full access to the source code to implement potential modifications is satisfied \cite{ns3-website}.
+Being a modular, extensible, community-supported, full-stack network software simulation tool based on a discrete event approach, the ns-3 simulator was the software of choice to conduct the testing campaigns. It is an open source project licensed under the GNU GPLv2 license, meaning that the condition of being able to have full access to the source code to implement potential modifications is satisfied \cite{ns3-website}.
 
-Other simulation pieces of software are available, such as OMNET++ (\href{https://omnetpp.org/}{omnetpp.org}), SWANS (\href{http://jist.ece.cornell.edu/}{jist.ece.cornell.edu}), NetSim (\href{https://www.tetcos.com/}{tetcos.com}), QualNet, and finally ns-3 predecessor, ns-2. Their main characteristics are summarized in Table \ref{tab:simulators}, from \cite{review-ns3}, which highlighted the suitability of ns-3 for research purposes, highlighting its success amongst the scientific community.
+Other simulation pieces of software are available, such as OMNET++ (\href{https://omnetpp.org/}{omnetpp.org}), SWANS (\href{http://jist.ece.cornell.edu/}{jist.ece.cornell.edu}), NetSim (\href{https://www.tetcos.com/}{tetcos.com}), QualNet, and finally ns-3 predecessor, ns-2. Their main characteristics are summarized in Table \ref{tab:simulators}, from \cite{review-ns3}, which posed the accent on the suitability of ns-3 for research purposes, highlighting its success amongst the scientific community.
 
 \subsubsection{Discrete events simulators}
 In discrete-events simulators, each operation to be performed is associated to an event, and in turn, each event is associated with a set of instructions and its execution time. 
 
 The simulation proceeds by processing and executing events, stepping from one to the next, as the simulation time passes. At the eyes of the simulation, each event is executed in zero time, since the time is stopped while executing a single event, and its course resumes only when transitioning between events scheduled at different times.
 
-If no events are scheduled to execute for a certain period of time, the simulation immediately transitions to the next scheduled one. This behavior is the main difference with real-time simulators.
+If no events are scheduled to execute for a certain period of time, the simulation immediately transitions to the next scheduled one. This kind of behavior is what discerns discrete events simulators from their counterparts,  real-time simulators.
 
 As the simulation unfolds, it consumes events, but each executed event may generate new ones. As an example, the event of a packet being transmitted in a network may generate the corresponding reception event after a set propagation delay \cite{review-ns3}.
 
@@ -93,13 +93,24 @@ As the simulation unfolds, it consumes events, but each executed event may gener
 \end{table}
 
 \subsubsection{The community}
-Being specifically targeted for the academic world and research purposes, and being open-source, ns-3 sees a thriving community of developers and researchers, with an active forum\footnote{Link to google group about ns-3 \href{https://groups.google.com/g/ns-3-users}{groups.google.com/g/ns-3-users}}, a well maintained documentation and a lot of independent lectures, tutorials and articles. 
+Being specifically targeted for the academic world and research purposes, as well as being open-source, ns-3 sees a thriving community of developers and researchers, with an active forum\footnote{Link to google group about ns-3 \href{https://groups.google.com/g/ns-3-users}{groups.google.com/g/ns-3-users}}, a well maintained documentation and a lot of independent lectures, tutorials and articles. 
 
 
 \section{NTN module}
 
 \subsection{Channel model}
-The \ac{3GPP} standardization body considers different possible scenarios when describing non-terrestrial networks. A brief summary of the conditions for each scenario is briefly described in Table \ref{tab:scenarios}. Moreover, a key factor for non-terrestrial communication is whether the ground terminal is able to view the satellite \ac{LOS} condition or not.
+In \cite{3gpp-tr-38.821}, \ac{3GPP} defines different standard reference scenarios to be considered when evaluating non-terrestrial networks. Such scenarios and their conditions are listed in Table \ref{tab:scenarios}. Moreover, a key factor for non-terrestrial communication is whether the ground terminal is able to view the satellite, called \ac{LOS} condition. Each scenario can therefore be further divided basing on the two different sights possibilities.
+
+\subsubsection{Free space path loss}
+The free space path loss is the major attenuation component in non-terrestrial links due to the long involved distances, and can be calculated as the ratio between the received power and the transmitted power with the well-known Friis formula 
+
+\begin{equation}
+    \frac{P_r}{P_t} = D_tD_r\left(\frac{\lambda}{4\pi d}\right)^2
+    \label{eqn:fspl}
+\end{equation}
+
+Where $D_t$ and $D_r$ denote the directivities of the transmitting and receiving antennas, $\lambda$ is the wavelength and $d$ the distance.
+
 
 \subsubsection{Atmospheric attenuation}
 \paragraph{}
@@ -152,9 +163,9 @@ Furthermore, the different scenarios that the \ac{UE} can experience also have a
 \subsection{NS-3 channel model implementation}
 
 \paragraph{}
-Work on a NS-3 module to allow for a better integration and simulation of communication in non-terrestrial scenarios are already in progress, and considerable effort has been put in the realization of a non-terrestrial channel model\footnote{The code is available at the following repository: \href{https://gitlab.com/mattiasandri/ns-3-ntn/-/tree/ntn-dev?ref_type=heads}{gitlab.com/mattiasandri}}.
+Work on a ns-3 module to allow simulations in non-terrestrial scenarios to be properly conducted is already in progress, and considerable effort has been put in the realization of a non-terrestrial channel model\footnote{The code is available at the following repository: \href{https://gitlab.com/mattiasandri/ns-3-ntn/-/tree/ntn-dev?ref_type=heads}{gitlab.com/mattiasandri}}.
 
-The implementation of the non-terrestrial channel model required the modification and the creation of some ns-3 classes. Such work is extensively described in \cite{Sandri_2023}, while a brief overview is hereby reported.
+The implementation of such channel model required the modification and the creation of some ns-3 classes. This work is extensively described in \cite{Sandri_2023}, while a brief overview is hereby reported.
 
 \subsubsection{Modified classes}
 \begin{itemize}
@@ -171,8 +182,8 @@ The implementation of the non-terrestrial channel model required the modificatio
         \item rural
     \end{itemize}
     \item \texttt{ThreeGppNTNScenarioPropagationLossModel}: once again, four different scenarios are implemented in as many classes. Such classes are tasked with the computation of the total path loss, which includes contributions from the standard free space path loss, atmospheric absorption, scintillation, fading and clutter loss.
-    \item \texttt{GeocentricConstantPositionMobilityModel}: mainly helps position \ac{UE}s on the Earth surface in an easier way by allowing them to be input in a more natural coordinate set. Conversions amongst different systems are done using the \texttt{GeographicPositions} class described above.
-    \item \texttt{CircularApertureAntennaModel}: a more precise implementation of the default ns-3' parabolic antenna model, this time making use of a newer and more efficient C++ function for the computation of Bessel functions required when considering the radiation pattern of aperture antennas \cite{rad-patterns}.
+    \item \texttt{GeocentricConstantPositionMobilityModel}: mainly helps position \ac{UE}s on the Earth surface in an easier way by allowing it to be input in a more natural coordinate set. Conversions amongst different systems are done using the \texttt{GeographicPositions} class described above.
+    \item \texttt{CircularApertureAntennaModel}: a more precise implementation of the default ns-3's parabolic antenna model, this time making use of a newer and more efficient C++ function for the computation of Bessel functions required when considering the radiation pattern of aperture antennas \cite{rad-patterns}.
 \end{itemize}
 
 
@@ -196,12 +207,14 @@ This work can therefore benefit from an already existing standard implementation
 This section aims at describing the reference scenario that was implemented in the ns-3 simulator in order to test the \ac{NR} protocol suite in a non-terrestrial communication setting.
 
 \subsection{Network topology}
-The simple network setup is depicted in Fig. \ref{fig:sim-scenario}consisted of the following elements:
+To conduct the various simulation campaigns, ensuring the reproducibility and the comparability of the obtained results, a reference network topology has been made, and the parameters specified by \ac{3GPP} have been used.
+
+The simple network setup is depicted in Fig. \ref{fig:sim-scenario} and it consists of the following elements:
 \begin{itemize}
     \item \textbf{Packet source}: application installed on the user equipment that generates packets with a specified periodicity. Both the generation rate and the packets' size can be varied by acting on their respective parameters. All the other variables that can be controlled are listed in the code snippet \ref{code:ue_parameters}
     \item \textbf{UE antenna}: the transmission of data is performed by mean of a \ac{vSAT} antenna placed at the \ac{UE} side. The main parameters of such antenna are found in the code snippet \ref{code:tx_parameters}.
-    \item \textbf{Non-terrestrial link}: link connecting the \ac{UE} placed on the ground with the \ac{gNB}. This wireless link is characterized its propagation delay, bandwidth and frequency. However, since it is the aim of this work to study the effects of propagation delay, on the protocol suite, the other two parameters remained constant across all the simulations. The list of parameters can be found in the code snippet \ref{code:link_parameters}.
-    \item \textbf{g-NodeB}: the adopted approach is to incorporate the g-NodeB into the satellite payload, therefore adopting the configuration described in section \ref{sec:onboard-gnb}. This decision was made since the high one-way propagation delays are enough to cause some involved protocols to start malfunctioning. Adopting the bent-pipe configuration described in \ref{sec:bent-pipe-payload} would have resulted in effectively doubling the delay between \ac{UE} and \ac{gNB}. The satellite aperture antenna parameters follow the ones specified in the scenario named "10 DL" described in \cite{3gpp-tr-38.821}, and are listed in the code snippet \ref{code:sat_parameters}.
+    \item \textbf{Non-terrestrial link}: link connecting the \ac{UE} placed on the ground with the \ac{gNB}. This wireless link is characterized its propagation delay, bandwidth and frequency. However, since the aim of this work is to study the effects of propagation delay on the protocol suite, the bandwidth and frequency remained constant across all the simulations to better isolate the variables that could potentially cause problems. The list of parameters can be found in the code snippet \ref{code:link_parameters}.
+    \item \textbf{g-NodeB}: the adopted approach is to incorporate the g-NodeB into the satellite payload, therefore adopting the configuration described in section \ref{sec:onboard-gnb}. This decision was made since the high one-way propagation delay is enough to cause some of the involved protocols to start malfunctioning. Adopting the bent-pipe configuration described in \ref{sec:bent-pipe-payload} would have resulted in effectively doubling the delay between \ac{UE} and \ac{gNB}. The satellite aperture antenna parameters follow the ones specified in the scenario named "10 DL" described in \cite{3gpp-tr-38.821}, and are listed in the code snippet \ref{code:sat_parameters}.
     \item \textbf{High performance link}: link connecting the g-NodeB to the packet sink. This is part of 5G core network, and it shall not be causing any additional problems, since that would be out of the scope of this work. This link was therefore meant to be as close as possible to an ideal one, with a capacity of 100Gb/s, a \ac{MTU} of 1500B and a delay of a single microsecond.
     \item \textbf{Remote host}: packet sink representing the destination node of all the packets generated at the \ac{UE}.
 \end{itemize}

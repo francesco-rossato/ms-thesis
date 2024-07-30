@@ -3,7 +3,7 @@
 \chapter{Scheduler}
 \label{chp:scheduling_problems}
 
-Before starting to tackle the problems that the high propagation delay causes to the \ac{HARQ} protocol, attention shall be put on the random access procedure and on the scheduler, both happening at a lower level, therefore necessary to be able to receive packets.
+Before starting to tackle the problems that the high propagation delay causes to the \ac{HARQ} protocol, attention shall be put on the random access procedure and the scheduler, both happening at a lower level, therefore necessary to be able to receive packets.
 
 If those layers are not in working conditions, the communication will not be able to take place.
 
@@ -11,7 +11,7 @@ If those layers are not in working conditions, the communication will not be abl
 As the name suggests, the main task of the scheduler is to allocate resources to the various connected users in the form of transmission and reception opportunities. In mobile communication networks, the scheduling is dictated by the network and the \ac{UE} has to follow the provided indications.
 
 \subsubsection{5G channels}
-The \ac{NR} standard comprises the usage of several channels depending on the type of data to be sent. The medium access control layer is a sort of intermediary, using channels provided by the underlying physical layer and providing the so-called logical channels to the upper layers.
+The \ac{NR} standard comprises the usage of several channels depending on the type of data to be sent. The medium access control layer is a sort of intermediary, using transport channels provided by the underlying physical layer and providing the so-called logical channels to the upper layers.
 
 A brief overview of such channels can be found in Table \ref{tab:nr_channels_phy}, listing the ones provided by the physical layer, and in Table \ref{tab:nr_channels_mac}, listing the ones provided by the \ac{MAC} layer. Figure \ref{fig:nr-types-channels} provides a visual clue at the separation in place between the channels at different levels of the protocol stack, while Figure \ref{fig:nr-channel-mapping} shows how channels are mapped when transitioning between levels.
 
@@ -48,7 +48,7 @@ A brief overview of such channels can be found in Table \ref{tab:nr_channels_phy
     \caption{Logical channels provided by the MAC layer \label{tab:nr_channels_mac}}
 \end{table}
 
-Different channels are used to convey messages such as the notification of an imminent transmission and the transmission itself, or the uplink scheduling request asked by the \ac{UE} and the successive grant from the base station \cite{5g-mac-devopedia}.
+Different channels are used to convey messages of different nature such as the notification of an imminent transmission and the transmission itself, or the uplink scheduling request asked by the \ac{UE} and the successive grant from the base station \cite{5g-mac-devopedia}. Each channel has its access policies, either scheduled or random.
 
 \begin{figure}[ht]
     \centering
@@ -67,7 +67,7 @@ Different channels are used to convey messages such as the notification of an im
 \subsection{TDD operation}
 The most complex problem to solve when dealing with propagation delay is certainly the \ac{TDD} mode of operation. In this scenario, each user can communicate only inside its assigned time slots.
 
-Differently from 4G, where a predefined pattern was in place when allocating downlink and uplink allocations in a radio frame, in New Radio this is done much more flexibly using a plethora of parameters such as the periodicity of UL and DL transmissions, the number of consecutive DL and UL slots and symbols at the beginning of each pattern and more.
+Differently from 4G, where a predefined pattern was in place when allocating downlink and uplink slots in a radio frame, in New Radio this is done much more flexibly using a plethora of parameters such as the periodicity of UL and DL transmissions, the number of consecutive DL and UL slots and symbols at the beginning of each pattern and more.
 
 \paragraph{}The important key concept is that all the scheduler work has to account for the propagation delay. While in terrestrial communications guard periods of six symbols when switching from downlink communications to uplink communications is sufficient to account for the delay in a 32Km-radius cell, and timing advance commands can account for the different propagation delays experienced by users located in the center of the cell and users located in the cell edge \cite{gsma-5g-tdd-sync}, the same cannot be said for non-terrestrial use cases, where the distances that come into play are much longer, therefore any delay is orders of magnitude higher.
 
@@ -81,7 +81,7 @@ The first encountered problem while implementing a non-terrestrial communication
 
 The implementation of the 5G scheduler in ns-3 is designed to allocate resources less than a single subframe in advance, and since each subframe has a duration time of 1ms, the resource grant was already expired by the time it was able to reach the \ac{UE}, since it was referring to a past subframe.
 
-\paragraph{Example} Consider a scenario with a propagation delay $\tau_p$ of 6ms. The \ac{UE} sends a request for uplink resources at time $t_0$ since it has some data to send. In the terrestrial scheduler implementation, the \ac{gNB} would receive such request at $t_0+\tau_p=6\textit{ms}$ and, provided that other transmissions have not been scheduled yet, grant the \ac{UE} the possibility to transmit in the following slot, which will start after 1ms at $t_0+\tau_p+t_{\textit{slot}}=7\textit{ms}$. However, this grant will reach the \ac{UE} only after another propagation delay, therefore at $t_0+2\tau_p=12\textit{ms}$, when it will already be too late.
+\paragraph{Example} Consider a scenario with a propagation delay $\tau_p$ of 6ms. The \ac{UE} sends a request for uplink resources at time $t_0$ since it has some data to send. In the standard scheduler implementation, the \ac{gNB} would receive such request at $t_0+\tau_p=6\textit{ms}$ and, provided that other transmissions have not been scheduled yet, grant the \ac{UE} the possibility to transmit in the following subframe, which will start after 1ms at $t_0+\tau_p+t_{\textit{SF}}=7\textit{ms}$. However, this grant will reach the \ac{UE} only after another propagation delay, therefore at $t_0+2\tau_p=12\textit{ms}$, when it will already be too late.
 
 \subsection{Proposed solution}
 \label{ss:propdelay-problem-sol}
@@ -116,7 +116,7 @@ After implementing the solution discussed in the previous point in the ns-3 netw
 
 \paragraph{Reduced latency}
 
-Figure \ref{fig:lat-saw} shows a rather peculiar trend regarding latency. The expectations were of a linear increase in latency with a slope of 3, where every packet arrived at the destination after three times the propagation delays. The reasoning behind this expectation was that every packet generated by the application should have triggered a scheduling request received by the \ac{gNB} after $1\tau_p$, a grant to be emitted requiring another $\tau_p$ to reach back to the \ac{UE}, and finally the transmission to be received by the \ac{gNB} after the third propagation delay.
+Figure \ref{fig:lat-saw} shows a rather peculiar trend regarding latency. The expected result was a linear increase in latency with a slope of 3, where every packet arrived at the destination after three times the propagation delays. The reasoning behind this expectation was that every packet generated by the application should have triggered a scheduling request received by the \ac{gNB} after $1\tau_p$, a grant to be emitted requiring another $\tau_p$ to reach back to the \ac{UE}, and finally the transmission to be received by the \ac{gNB} after the third propagation delay.
 
 The observed pattern did not match any of the expectations. The output plots obtained from the simulation campaign showed a nonlinear saw tooth behavior presenting values that consistently stayed under the expected $3\tau_p$ threshold value (Fig. \ref{fig:lat-saw}).
 
@@ -127,7 +127,9 @@ The observed pattern did not match any of the expectations. The output plots obt
     \label{fig:lat-saw}
 \end{figure}
 
-\paragraph{Periodic buffer status reports} Further investigation on the subject allowed to identify numerous buffer status reports sent from the \ac{UE} to the \ac{gNB} at regular intervals of 10ms, even when no new packets were produced by the application.
+\paragraph{Periodic buffer status reports} Further investigation on the subject allowed identifying numerous buffer status reports sent from the \ac{UE} to the \ac{gNB} at regular intervals of 10ms, even when no new packets were produced by the application.
+
+Buffer status reports are messages that the \ac{UE} uses to communicate to the \ac{gNB} the status of its transmission buffer. Every new packet arriving to the transmission buffer of the \ac{UE} changes its status and a new \ac{BSR} is sent, containing information such as the number of queued packets and their size. Upon reception, the \ac{gNB} can grant the \ac{UE} some resources to transmit part or all of the contents of its buffer.
 
 This behavior happens because the implementation of 5G \ac{MAC} layer includes a periodic \ac{BSR} that the \ac{UE} sends to the \ac{gNB} as long as the transmission buffer contains some pending data.
 The details of this mechanism are documented in Section 5.4.5 of the standard \cite{etsi-mac-specification}, where it is also stated that the default interval between those periodic \ac{BSR} is of 10ms.
@@ -135,7 +137,7 @@ The details of this mechanism are documented in Section 5.4.5 of the standard \c
 This characteristic was meant to act as a safeguard against lost scheduling requests, and does not account for the propagation delay at all. The \ac{UE} therefore continues to send additional buffer status reports at regular 10ms intervals even though the previous ones were not lost, but still travelling towards the base station.
 
 \paragraph{}
-Figure \ref{fig:diagram-wasted-capacity} can provide a visual clue to understand this behavior. The arrival of packet p1 at time zero triggers the transmission of a first \ac{SR}. Since this scenario has a propagation delay of 20ms, the \ac{SR} will arrive at the g-NodeB at time 20ms. However, the \ac{BSR} timer expires in 10ms by default, so during a single round-trip time the \ac{SR} is repeated four times. The green arrows marked with a capital G denote all the grants issued to the \ac{UE}. Only one of the four depicted will actually be used by the intended packet, effectively wasting three out of four transmission opportunities that could have been allocated to other users waiting to transmit.
+Figure \ref{fig:diagram-wasted-capacity} can provide a visual clue to better understand this behavior. The arrival of packet p1 at time zero triggers the transmission of a first \ac{SR}. Since the hereby depicted scenario has a propagation delay of 20ms, the \ac{SR} will arrive at the g-NodeB at time 20ms. However, the \ac{BSR} timer expires in 10ms by default, so during a single round-trip time the \ac{SR} is repeated four times. The green arrows marked with a capital G denote all the grants issued to the \ac{UE}. Only one of the four depicted will actually be used by the intended packet, effectively wasting three out of four transmission opportunities that could have been allocated to other users waiting to transmit.
 
 \begin{figure}[ht]
     \centering
@@ -150,14 +152,14 @@ While this can present some beneficial aspects such as the reduced overall laten
 
 \subsection{Proposed solution}
 
-After the successful identification and characterization of the problem, the  solution consisted of the implementation of a simple adaptive algorithm that would dynamically set the \ac{BSR} timer to a value of twice the propagation delay plus a constant of 4ms that accounts for the processing times.
+After the successful identification and characterization of the problem, the  solution consisted of the implementation of a simple adaptive algorithm that would dynamically set the \ac{BSR} timer to a value of twice the propagation delay plus a constant of 4ms that accounts for the processing times as well as any possible delay.
 
 \paragraph{Area of potential improvement}
-The implementation of the aforementioned solution, however, while working as intended, had the expected but unwelcomed effect of increasing the overall latency of the system, since all the additional grants required by previous packets and that newly generated ones could exploit were no longer available.
+The implementation of the aforementioned solution, however, while working as intended, had the expected but unwelcomed effect of increasing the overall latency of the system, since all the additional grants required by previous packets that newly generated ones could exploit were no longer available.
 
 This unexpected problematic behavior of wasted transmission opportunities accidentally also unveiled the potential of preemptively transmitting additional scheduling requests, so that future packets could be sent with a lower latency.
 
-If implemented correctly, the \ac{UE} could adopt a predictive approach towards its traffic needs for the near future depending on the type of application, and send the \ac{gNB} some scheduling requests for packets that have yet to be generated.
+If implemented correctly, the \ac{UE} could adopt a predictive approach towards its traffic needs for the near future basing its estimates on the type of application, and send the \ac{gNB} scheduling requests for packets that have yet to be generated.
 
 \section{Inflated BSR}
 \label{sec:inf-bsr}
@@ -182,7 +184,7 @@ The last grant, that would allow the \ac{UE} to transmit 4 consecutive packets, 
 \end{figure}
 
 \paragraph{Repercussions}
-The described behavior caused the physical throughput to be significantly higher than the set application source rate, and it rapidly increased with the propagation delay. Figure \ref{fig:phy-thr-runaway} shows the observed physical throughput for a source rate of 160Kb/s, indicating that a lot of radio resources are being wasted to transmit few data.
+The described behavior caused the physical throughput to be significantly higher than the set application source rate, and to rapidly increase with the propagation delay. Figure \ref{fig:phy-thr-runaway} shows the observed physical throughput for a source rate of 160Kb/s, indicating that a lot of radio resources are being wasted to transmit few data, since the wasted grant capacity is filled with padding, that counts as physical throughput but is useless at the higher levels. The relation between the increase in propagation delay causing an increase in physical throughput happens because the \ac{SR} and grants take more time to arrive at their destinations, and the \ac{UE} keeps sending inflated \ac{BSR}s for more time, further contributing to waste more resources.
 
 \begin{figure}[ht]
     \centering
@@ -211,7 +213,7 @@ This misalignment between packet size and transmission opportunities allows for 
 \paragraph{PDCP}
 The detailed implementation of the \ac{PDCP} layer can be found in the \ac{3GPP} technical specification \cite{pdcp-spec-3gpp}, while the diagram describing its functionality has been reported in Figure \ref{fig:pdcp-functionalities}. This layer offers reordering services by employing a sequence number, integrity protection and ciphering if the packet in question is associated to a \ac{PDCP} \ac{SDU}, and duplication and routing when operating split bearers.
 
-The observed problem, as the propagation delay increases, is related to an expiring timer when reassembling the packets at the \ac{PDCP} layer. The so-called reordering timer (t-reordering), which despite the name also affects the recomposition of fragmented packets, is not configured for the use in a non-terrestrial scenario, and it expired before the second half of the packet managed to arrive. 
+The observed problem, as the propagation delay increases, is related to an expiring timer when reassembling the packets at the \ac{PDCP} layer. The so-called reordering timer (t-reordering), which despite the name also affects the recomposition of fragmented packets, is not configured for the use in a non-terrestrial scenario, and it regularly expires before the second half of the packet managed to arrive, leading to the discard of otherwise good packets.
 
 This re-ordering functionality of \ac{PDCP} layer is in place to ensure a sequential delivery of packets to the upper layers. In case of missing packets, the behavior is to wait until either the packets arrive or the reordering timer expires \cite{efficient-reassembly-pdcp}. It was observed that this timer also started when the \ac{PDCP} layer was waiting for the arrival of the second part of a fragmented packet. However, due to the high propagation delay, the arrival of the second half was not possible before the timer expiration, leading to the packet being discarded.
 
@@ -227,4 +229,4 @@ Should the reordering timer be set too high, it may cause additional latency, an
 \subsection{Proposed solution}
 Since the problem is linked to the expiration of a timer, and the propagation delay of \ac{NTNs} is much larger than the terrestrial case, the implemented solution consisted in the increase of the default timer value to account for the additional delays.
 
-Since the use of timers always bear trade-offs depending on their value, in this case either being a higher latency or a higher packet discard ratio, there can not be a one-fits-all approach: the differences in propagation delays between satellites orbiting at different altitudes are so drastic that the implementation of a single default value would lead to suboptimal performances in every possible scenario. A much better approach would be to dynamically adapt the reordering timer accounting for the estimated propagation delay, similarly as the proposed solution for the scheduling problems in Section \ref{ss:propdelay-problem-sol}.
+Since the use of timers always bears trade-offs depending on their value, in this case either being a higher latency or a higher packet discard ratio, there can not be a one-fits-all approach: the differences in propagation delays between satellites orbiting at different altitudes are so drastic that the implementation of a single default value would lead to suboptimal performances in every possible scenario. A much better approach would be to dynamically adapt the reordering timer accounting for the estimated propagation delay, similarly as the proposed solution for the scheduling problems in Section \ref{ss:propdelay-problem-sol}. This way it would be possible to always ensure the best choice of parameters for each specific scenario.
