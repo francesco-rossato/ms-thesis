@@ -98,6 +98,8 @@
 % academic Year
 \def\academicYear#1{\gdef\@academicYear{#1}}
 
+\def\graduationDate#1{\gdef\@graduationDate{#1}}
+
 % student ID
 \def\studentId#1{\gdef\@studentId{#1}}
 
@@ -322,7 +324,7 @@
   }
 
   % set academic year in footer
-  \cfoot{\normalsize\textsc{Academic Year \\ \@academicYear}}
+  \cfoot{\normalsize\textsc{Graduation Date \@graduationDate \\ Academic Year \@academicYear}}
 
   % set brands in header
   \lhead{
