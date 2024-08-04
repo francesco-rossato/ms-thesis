@@ -52,14 +52,14 @@ Different channels are used to convey messages of different nature such as the n
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.9\textwidth]{res/nr-types-channels.png}
+    \includegraphics[width=0.8\textwidth]{res/nr-types-channels.png}
     \caption{Different types of channels used in 5G, courtesy of \href{https://www.keysight.com/}{Keysight technologies}}
     \label{fig:nr-types-channels}
 \end{figure}
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.9\textwidth]{res/channels.png}
+    \includegraphics[width=0.8\textwidth]{res/channels.png}
     \caption{Mapping between channels at different levels, courtesy of \cite{5g-ch-devopedia}.}
     \label{fig:nr-channel-mapping}
 \end{figure}
@@ -83,7 +83,7 @@ The implementation of the 5G scheduler in ns-3 is designed to allocate resources
 
 \paragraph{Example} Consider a scenario with a propagation delay $\tau_p$ of 6ms. The \ac{UE} sends a request for uplink resources at time $t_0$ since it has some data to send. In the standard scheduler implementation, the \ac{gNB} would receive such request at $t_0+\tau_p=6\textit{ms}$ and, provided that other transmissions have not been scheduled yet, grant the \ac{UE} the possibility to transmit in the following subframe, which will start after 1ms at $t_0+\tau_p+t_{\textit{SF}}=7\textit{ms}$. However, this grant will reach the \ac{UE} only after another propagation delay, therefore at $t_0+2\tau_p=12\textit{ms}$, when it will already be too late.
 
-\subsection{Proposed solution}
+\subsection{Implemented solution}
 \label{ss:propdelay-problem-sol}
 The implemented solution assumes that the scheduler has knowledge of the propagation delay. This is a reasonable assumption since systems such as GPS already rely on a precise estimation of the delay between the user on the ground and the satellite.
 
@@ -108,6 +108,11 @@ The last part of reserving a different slot is not as immediate. However, this m
     \label{fig:scheduler-allocations-pd}
 \end{figure}
 
+\paragraph{ns-3 implementation}
+This solution has been implemented as a modification to the classes \texttt{MmWaveFlexTtiMacScheduler} and \texttt{MmWaveEnbPhy}, that now account for delayed responses of previously scheduled transmissions when allocating new slots.
+
+The classes \texttt{MmWaveUePhy} and \texttt{MmWavePhy} have also been modified to allow access to the propagation delay parameter of the physical channel.
+
 \section{BSR timer}
 \label{sec:bsr-timer}
 After implementing the solution discussed in the previous point in the ns-3 network simulator, allowing the communication to take place, some other irregularities were found regarding the periodic buffer status report timer, as followingly described. 
@@ -122,7 +127,7 @@ The observed pattern did not match any of the expectations. The output plots obt
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.9\textwidth]{res/lat-udp-saw.png}
+    \includegraphics[width=0.8\textwidth]{res/lat-udp-saw.png}
     \caption{E2E latency vs. propagation delay with periodic \ac{BSR}}
     \label{fig:lat-saw}
 \end{figure}
@@ -141,7 +146,7 @@ Figure \ref{fig:diagram-wasted-capacity} can provide a visual clue to better und
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.8\textwidth]{res/diagram-wasted-grants.png}
+    \includegraphics[width=0.5\textwidth]{res/diagram-wasted-grants.png}
     \caption{Packet diagram with periodic \ac{BSR}}
     \label{fig:diagram-wasted-capacity}
 \end{figure}
@@ -150,9 +155,14 @@ The reduction in latency was observed because newly arrived packets could, in ce
 
 While this can present some beneficial aspects such as the reduced overall latency, it originates from a behavior that is outside the original design intentions. Moreover, this approach is particularly greedy, leading to wasted capacity.
 
-\subsection{Proposed solution}
+\subsection{Implemented solution}
 
 After the successful identification and characterization of the problem, the  solution consisted of the implementation of a simple adaptive algorithm that would dynamically set the \ac{BSR} timer to a value of twice the propagation delay plus a constant of 4ms that accounts for the processing times as well as any possible delay.
+
+\paragraph{ns-3 implementation}
+Modifications were made to the \texttt{LteRlcUm} class to expose the buffer status report timer parameter using the ns-3 attribute framework, therefore permitting its dynamic adjustment based on the propagation delay. 
+
+This allowed the simulation manager software to test different values of the \ac{BSR} timer, as well as a more standardized way of setting its value without changes to the source code.
 
 \paragraph{Area of potential improvement}
 The implementation of the aforementioned solution, however, while working as intended, had the expected but unwelcomed effect of increasing the overall latency of the system, since all the additional grants required by previous packets that newly generated ones could exploit were no longer available.
@@ -178,7 +188,7 @@ The last grant, that would allow the \ac{UE} to transmit 4 consecutive packets, 
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.8\textwidth]{res/diagram-inflated-bsr.png}
+    \includegraphics[width=0.5\textwidth]{res/diagram-inflated-bsr.png}
     \caption{Packet diagram for interarrival times smaller than propagation delay}
     \label{fig:inflated-bsr-diag}
 \end{figure}
@@ -188,18 +198,19 @@ The described behavior caused the physical throughput to be significantly higher
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.9\textwidth]{res/phy-thr-udp-runaway.png}
+    \includegraphics[width=0.8\textwidth]{res/phy-thr-udp-runaway.png}
     \caption{Physical throughput vs. propagation delay with periodic \ac{BSR}}
     \label{fig:phy-thr-runaway}
 \end{figure}
 
-\subsection{Proposed solution}
+\subsection{Implemented solution}
 
 Various different approaches could be undertaken in order to tackle this problem. Nonetheless, a comprehensive study detailing upsides and downsides of each of them is outside the scope of this work. 
 
 The implemented solution consists of a modification to the \ac{SR} algorithm that limits the requests to only account for the newly received data, therefore disabling the cumulative behavior. If a packet is already in the buffer when a new one arrives, the scheduling request only asks the size of the second packet to be allocated.
 
-As mentioned before, the implementation of a smarter algorithm, capable of predicting the traffic needs of the \ac{UE} could be employed to reduce the latency. 
+\paragraph{ns-3 implementation}
+The method responsible for the cumulative buffer status reports is \texttt{DoReportBufferStatus()} in the \texttt{LteRlcUm} class, therefore it was modified to only account for the newly arrived data when sending a \ac{SR}.
 
 \section{Reordering timer}
 \label{sec:reord-timer}
@@ -213,20 +224,21 @@ This misalignment between packet size and transmission opportunities allows for 
 \paragraph{PDCP}
 The detailed implementation of the \ac{PDCP} layer can be found in the \ac{3GPP} technical specification \cite{pdcp-spec-3gpp}, while the diagram describing its functionality has been reported in Figure \ref{fig:pdcp-functionalities}. This layer offers reordering services by employing a sequence number, integrity protection and ciphering if the packet in question is associated to a \ac{PDCP} \ac{SDU}, and duplication and routing when operating split bearers.
 
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.7\textwidth]{res/pdcp-functionality.png}
+    \caption{PDCP diagram \cite{pdcp-spec-3gpp}}
+    \label{fig:pdcp-functionalities}
+\end{figure}
+
 The observed problem, as the propagation delay increases, is related to an expiring timer when reassembling the packets at the \ac{PDCP} layer. The so-called reordering timer (t-reordering), which despite the name also affects the recomposition of fragmented packets, is not configured for the use in a non-terrestrial scenario, and it regularly expires before the second half of the packet managed to arrive, leading to the discard of otherwise good packets.
 
 This re-ordering functionality of \ac{PDCP} layer is in place to ensure a sequential delivery of packets to the upper layers. In case of missing packets, the behavior is to wait until either the packets arrive or the reordering timer expires \cite{efficient-reassembly-pdcp}. It was observed that this timer also started when the \ac{PDCP} layer was waiting for the arrival of the second part of a fragmented packet. However, due to the high propagation delay, the arrival of the second half was not possible before the timer expiration, leading to the packet being discarded.
 
 Should the reordering timer be set too high, it may cause additional latency, and, if set too low, it might cause many packets to be discarded, as in the case that was simulated during this work \cite{efficient-reassembly-pdcp}.
 
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.9\textwidth]{res/pdcp-functionality.png}
-    \caption{PDCP diagram \cite{pdcp-spec-3gpp}}
-    \label{fig:pdcp-functionalities}
-\end{figure}
 
-\subsection{Proposed solution}
-Since the problem is linked to the expiration of a timer, and the propagation delay of \ac{NTNs} is much larger than the terrestrial case, the implemented solution consisted in the increase of the default timer value to account for the additional delays.
+\subsection{Implemented solution}
+Since the use of timers always bears trade-offs depending on their value, in this case either being a higher latency or a higher packet discard ratio, there can not be a one-fits-all approach: the differences in propagation delays between satellites orbiting at different altitudes are so drastic that the implementation of a single default value would lead to suboptimal performances in every possible scenario. 
 
-Since the use of timers always bears trade-offs depending on their value, in this case either being a higher latency or a higher packet discard ratio, there can not be a one-fits-all approach: the differences in propagation delays between satellites orbiting at different altitudes are so drastic that the implementation of a single default value would lead to suboptimal performances in every possible scenario. A much better approach would be to dynamically adapt the reordering timer accounting for the estimated propagation delay, similarly as the proposed solution for the scheduling problems in Section \ref{ss:propdelay-problem-sol}. This way it would be possible to always ensure the best choice of parameters for each specific scenario.
+The class \texttt{LteRlcUm} was therefore modified to expose the \texttt{ReorderingTimer} parameter, allowing to easily set its value using the ns-3 attribute framework, similarly to the approach undertaken while solving the previous problem. This in turn permitted to adapt the timer based on the propagation delay of each simulator run.

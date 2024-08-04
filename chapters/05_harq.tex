@@ -90,17 +90,22 @@ On the other hand, the throughput with \ac{HARQ} enabled reaches its plateau as 
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.9\textwidth]{res/harq-onoff2.png}
+    \includegraphics[width=0.7\textwidth]{res/harq-onoff2.png}
     \caption{End-to-end throughput comparison with and without \ac{HARQ}, $\tau_p=6$ms.}
     \label{fig:harq_on_off}
 \end{figure}
-
+\subsubsection{ns-3 implementation}
 \paragraph{}
-Having verified that \ac{HARQ} does indeed limit the achievable throughput, a modification was implemented to the protocol suite to manually force a higher number of concurrent processes. The simulation campaign was then re-run and the results are shown in Fig. \ref{fig:harq-numproc}.
+Having verified that \ac{HARQ} does indeed limit the achievable throughput, a modification was implemented to the protocol suite to manually force a higher number of concurrent processes.
+
+This was done by modifying the \texttt{NumHarqProcess} parameter of the class \texttt{MmWavePhyMacCommon}, making it accessible and simulating various scenarios with different number of processes.
+
+However, a flaw in the \texttt{MmWaveFlexTtiMacScheduler} class containing the ns-3 implementation of \ac{HARQ} made the whole simulator crash whenever a new outbound packet found that all the processes were already occupied. If $n$ processes were available, the simulator tried to access the $n+1$th process, causing an exception. The implemented solution consisted of a safeguard that checked the number of available processes, eventually discarding the packet. 
+
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.9\textwidth]{res/harq_numproc_new.png}
+    \includegraphics[width=0.7\textwidth]{res/harq_numproc_new.png}
     \caption{End-to-end throughput comparison with different number of concurrent \ac{HARQ} processes, $\tau_p=6$ms.}
     \label{fig:harq-numproc}
 \end{figure}

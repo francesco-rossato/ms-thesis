@@ -191,7 +191,7 @@ The implementation of such channel model required the modification and the creat
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.8\textwidth]{res/coord_systems.png}
+    \includegraphics[width=0.5\textwidth]{res/coord_systems.png}
     \caption{Showcase of different coordinates systems \cite{wiki_coords}}
     \label{fig:coord-syst}
 \end{figure}
@@ -208,6 +208,13 @@ This section aims at describing the reference scenario that was implemented in t
 
 \subsection{Network topology}
 To conduct the various simulation campaigns, ensuring the reproducibility and the comparability of the obtained results, a reference network topology has been made, and the parameters specified by \ac{3GPP} have been used.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{res/sim-scenario.png}
+    \caption{Network simulation scenario}
+    \label{fig:sim-scenario}
+\end{figure}
 
 The simple network setup is depicted in Fig. \ref{fig:sim-scenario} and it consists of the following elements:
 \begin{itemize}
@@ -262,9 +269,3 @@ The simple network setup is depicted in Fig. \ref{fig:sim-scenario} and it consi
     double bandwidth = 400e6;   // link bandwidth
 \end{lstlisting}
 
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.8\textwidth]{res/sim-scenario.png}
-    \caption{Network simulation scenario}
-    \label{fig:sim-scenario}
-\end{figure}
