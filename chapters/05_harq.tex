@@ -1,22 +1,25 @@
 %!TEX root = ../main.tex
 
-\chapter{HARQ}
+\chapter{Optimizing NR HARQ for NTNs}
 \label{chp:harq}
+The previous chapters describe how we developed a working simulator for \ac{NR} stack in a non-terrestrial scenario, the encountered problems and the proposed solutions. This chapter focuses on the improvement of \ac{NR} \ac{NTN} performances, in particular regarding the \ac{HARQ} protocol, that has been identified by \ac{3GPP} as prone to failure due to the high propagation delays of \ac{NTN}s. Our aim is to verify its current status and performances in \ac{NTN}s, and optimize its behavior by designing and implementing some original modifications.
+
+After a brief overview of \ac{HARQ} key concepts, the problems with \ac{HARQ} that emerged during the simulation campaing are presented, critically evaluated and followed by a detailed explanation of the implemented solutions.
 
 \section{HARQ overview}
-The main objective of telecommunication technologies is the transfer of information between different actors. Modern systems aim at an efficient usage of the available resources, while trying to meet all the necessary requirements of the application that is generating the data to be transferred. 
+The main objective of telecommunication networks is the transfer of information between different actors. Modern systems aim at an efficient usage of the available resources, while trying to meet all the necessary requirements of the application that is generating the data to be transferred. 
 
-The \ac{HARQ} protocol hereby described helps achieve a more efficient use of the available resources when errors occur, using an intelligent system of retransmissions that, in turn, lowers the error rate at the expense of a higher latency.
+The \ac{HARQ} protocol hereby described helps achieve a more efficient use of the available resources when errors occur, using an intelligent system of retransmissions that, in turn, reduces the error rate at the expense of a higher latency.
 
-The main building blocks of \ac{HARQ} are \ac{ARQ} and \ac{FEC}. The role of \ac{ARQ} is to automatically request the retransmission of the whole packet when the receiver detects the presence of errors, while \ac{FEC} is tasked to correct such errors using redundancy bits added to the packet by the transmitter. The joint operation of those two protocols makes the foundation of \ac{HARQ}, currently in use in all the most popular network standards such as 4G, Wi-Fi and 5G \cite{3gpp-38-series}. \ac{HARQ} peculiarity resides in the fact that it avoids the retransmission of the whole packet in case of errors, preferring to send additional redundant information to help the decoding process.
+The main building blocks of \ac{HARQ} are \ac{ARQ} and \ac{FEC}. The role of \ac{ARQ} is to automatically request the retransmission of the whole packet when the receiver detects the presence of errors, or when packets are not received at all, while \ac{FEC} is tasked to correct such errors using redundancy bits added to the packet by the transmitter. The joint operation of those two protocols makes the foundation of \ac{HARQ}, currently in use in all the most popular network standards such as 4G, Wi-Fi and 5G \cite{3gpp-38-series}. \ac{HARQ} peculiarity resides in the fact that it avoids the retransmission of the whole packet in case of errors, preferring to send additional redundant information to help the decoding process.
 
 \section{Concurrent processes limit}
 \label{sec:harq-conc-proc}
 
-One of the problems highlighted by the \ac{3GPP} technical report \cite{3gpp-tr-38.811} on the matter of non-terrestrial networks regards the maximum number of concurrent \ac{HARQ} processes. 
+One of the problems of \ac{HARQ} highlighted by the \ac{3GPP} technical report \cite{3gpp-tr-38.811} in the \ac{NTN} scenario regards the maximum number of concurrent \ac{HARQ} processes. 
 
 \subsection{Problem description}
-The details of \ac{HARQ} protocol implementation in the 5G \ac{NR} standard is extensively treated in many publications such as \cite{harq-wireless-communications-survey}. However, for the purpose of understanding what is a \ac{HARQ} process and how it affects the throughput in a non-terrestrial scenario, a brief overview of a few key concepts is enough.
+The details of \ac{HARQ} protocol implementation in the 5G \ac{NR} standard is extensively treated in many publications such as \cite{harq-wireless-communications-survey}. However, for the purpose of understanding what is a \ac{HARQ} process and how it affects the throughput in a non-terrestrial scenario, we only give a brief overview in the following paragraphs.
 
 \begin{figure}[ht]
     \centering
@@ -27,13 +30,13 @@ The details of \ac{HARQ} protocol implementation in the 5G \ac{NR} standard is e
 
 \subsubsection{HARQ working principle}
 \paragraph{}
-Fig. \ref{fig:harq_retx_scheme} gives an overview of how \ac{HARQ} processes work. Upon successful reception, depicted in the first column of Fig. \ref{fig:harq_retx_scheme}, an \ac{ACK} is sent back, triggering the transmission of the successive \ac{TB}, which is represented in the second column. This behavior is the normal state in which transmissions are received correctly, and it keeps repeating itself until errors are detected.
+Fig. \ref{fig:harq_retx_scheme} illustrates how \ac{HARQ} processes work. Upon successful reception, depicted in the first column of Fig. \ref{fig:harq_retx_scheme}, an \ac{ACK} is sent back, triggering the transmission of the successive \ac{TB}, which is represented in the second column. This behavior is the normal state in which transmissions are received correctly, and it keeps repeating itself until errors are detected.
 
-\paragraph{} Should the receiver detect errors in the received \ac{TB}, represented by the greyed packet, a \ac{NACK} is relayed back to the sender, which in turn proceeds to send some additional redundancy bits. Note that the sender does not repeat the whole \ac{TB}. The receiver now proceeds to decode the transfer block using all the information that it has received so far.
+\paragraph{} Should the receiver detect errors in the received \ac{TB}, represented by the greyed packet, a \ac{NACK} is sent back to the sender, which in turn proceeds to send some additional redundancy bits. Note that the sender does not repeat the whole \ac{TB}. The receiver now proceeds to decode the transfer block using all the information that it has received so far.
 
 This is the most important feature of \ac{HARQ} protocol: it does not discard the packets affected by errors, since they can be at least used to recover some information. The erroneous packets are stored in buffers and used for joint decoding \cite{5g-nr-harq-devopedia}. 
 
-\paragraph{} If the redundancy bits that the sender just transmitted are still not enough to allow for a correct decoding of the transfer block, or if another error is detected, a retransmission is triggered. This is shown in the last column of Fig. \ref{fig:harq_retx_scheme}, where all the packets received so far contribute in correctly decoding packet 2.
+\paragraph{} If the redundancy bits that the sender just transmitted are still not enough to allow for a correct decoding of the transfer block, or if another error is detected, a retransmission is triggered. This is shown in the last column of Fig. \ref{fig:harq_retx_scheme}. Note that all the information previously received, and not only the last part, is jointly used to decode packet 2.
 
 Finally, if even this retransmission is affected by errors and the combination of the information received so far is not enough to complete the decoding of the \ac{TB}, additional information is sent. After this fourth interaction, no further attempts are made to correct the packet \cite{5g-nr-harq-sharetechnote}.
 
@@ -48,90 +51,134 @@ Finally, if even this retransmission is affected by errors and the combination o
 
 
 \subsubsection{Stop and wait}
-\paragraph{} The presented behavior means that \ac{HARQ} is a stop-and-wait kind of protocol, since it is designed to wait for the arrival of previous packet's \ac{ACK} before sending the new one. While this enforces the delivery of ordered packets, it also brings the downside of severely underutilizing the channel capacity, wasting resources that could potentially be used for transmission instead \cite{3gpp-ts-38.214}. Figures \ref{fig:harq_retx_scheme_2} and \ref{fig:harq_retx_scheme} highlight this pattern.
+\paragraph{} The presented behavior means that \ac{HARQ} is a stop-and-wait kind of protocol, since it is designed to wait for the arrival of previous packet's \ac{ACK} before sending the new one. Figures \ref{fig:harq_retx_scheme_2} and \ref{fig:harq_retx_scheme} highlight this pattern. While this enforces the delivery of ordered packets, it also brings the downside of severely underutilized channel capacity, wasting resources that could potentially be used for transmission instead \cite{3gpp-ts-38.214}. 
 
 This limitation is overcome by the introduction of multiple concurrent processes.
 
 \subsubsection{Processes}
 \paragraph{}
-A \ac{HARQ} process starts when a \ac{TB} is passed to the \ac{HARQ} entity and finishes when the \ac{ACK} relative to that same \ac{TB} is received by the sender. After the \ac{ACK} is correctly received, the next \ac{TB} starts being processed. Considering a link with propagation delay $\tau_p$, the minimum active time for a process is therefore $2\tau_p$, i.e. the time for the transfer block to arrive to the destination plus the time for the acknowledgement to travel back to the sender.
+A \ac{HARQ} process starts when a \ac{TB} is passed to the \ac{HARQ} entity and finishes when the \ac{ACK} relative to that same \ac{TB} is received by the sender. After the \ac{ACK} is correctly received, the next \ac{TB} starts being processed. Considering a link with propagation delay $\tau_p$, the minimum active time for a process is therefore $2\tau_p$, i.e., the time for the \ac{TB} to arrive to the destination plus the time for the acknowledgement to travel back to the sender.
 
-The 5G \ac{NR} standard allows the base station to configure the maximum number of concurrent \ac{HARQ} processes to be assigned to each connected user, with the default value being of 8 concurrent processes and the maximum 16 \cite{3gpp-ts-38.300, 5g-nr-harq-devopedia}. In this way it is possible to partially limit the effects of the stop-and-wait behavior, allowing for a better throughput.
+The 5G \ac{NR} standard allows the base station to configure a certain number of concurrent \ac{HARQ} processes to be assigned to each connected user, ranging from a minimum of 1 (even though the default is 8) to a maximum of 16 \cite{3gpp-ts-38.300, 5g-nr-harq-devopedia}. In this way it is possible to partially limit the effects of the stop-and-wait behavior, allowing for a better throughput.
 
 \subsubsection{Application in NTNs}
 \paragraph{}
-Since the propagation delay of \ac{NTNs} is order of magnitude larger than their terrestrial counterpart, the limited maximum number of concurrent processes lowers the maximum achievable throughput, as detailed in the following toy example. 
+Since the propagation delay of \ac{NTNs} is orders of magnitude larger than their terrestrial counterpart, the current maximum number of \ac{HARQ} processes, which was optimized for terrestrial transmissions, leads to possible throughput degradation in the NTN domain, as detailed in the following toy example.
 
-\paragraph{Example} Consider a scenario where each process tries to send a \ac{TB} every $2\tau_p$, which is the maximum rate at which transfer blocks can be sent under the condition of waiting for the acknowledgement to arrive before starting a new transmission. The other endpoint is a \ac{LEO} satellite orbiting at 2.000Km, therefore having $\tau_p\approx6$ms. Assuming the best possible conditions with no need for retransmissions and assuming that the base station grants the \ac{UE} to the best possible clearance of 16 concurrent processes, the total send rate is of 16 transfer blocks every 12ms. In order to target a throughput of 50Mbps, the block size must therefore be of at least $$\frac{\textit{target throughput} \times 2\tau_p}{\textit{number of processes}} = 37,5Kb$$
+\paragraph{Example} Consider a scenario where each process tries to send a \ac{TB} every $2\tau_p$, which is the maximum rate at which transfer blocks can be sent under the condition of waiting for the acknowledgement to arrive before starting a new transmission. The other endpoint is a \ac{LEO} satellite orbiting at 2.000Km, therefore $\tau_p\approx6$ms. Assuming the best possible conditions with no need for retransmissions and assuming 16 concurrent \ac{HARQ} processes, the total send rate is of 16 transfer blocks every 12ms. In order to target a throughput of 50Mbps, the block size must therefore be of at least $$\frac{\textit{target throughput} \times 2\tau_p}{\textit{number of processes}} = 37,5Kb$$
 Doing the same calculation for a terrestrial scenario with the \ac{gNB} placed at a distance of 600m from the \ac{UE}, we obtain that the minimum \ac{TBS} must be of just $12b$.
 Both calculations do not factor in overheads, control information, channel access requests and processing delays, but are helpful to give an idea of the disproportion in place between the two conditions.
 
-While the necessary block size for the \ac{NTN} case is technically possible to achieve even with the older 4G technology, it necessitates a high \ac{SNR} to work properly. This constraint becomes even more conservative in the non-terrestrial case, since retransmissions add delays in multiples of the propagation delay and can therefore quickly become a lot more costly \cite{4g-phy-processing-sharetechnote}.
+While the necessary block size for the \ac{NTN} case is technically possible to achieve even with the older 4G technology, it necessitates a high \ac{SNR} to work properly. This is because the larger is the block, the higher is the probability of encountering at least one error, therefore more retransmissions would become necessary. This constraint becomes even more conservative in the non-terrestrial case, where the propagation delay is much higher, and retransmissions can quickly become a lot more costly \cite{4g-phy-processing-sharetechnote}.
 
-\subsection{Possible solutions}
+\section{Possible solutions}
 \label{sec:proc-harq-prop-sol}
-\paragraph{Increasing the processes}
-The easiest solution would be to increase the number of maximum concurrent \ac{HARQ} processes. However, this comes with some caveats mainly regarding the higher computational capabilities required and higher power consumption, that can quickly become problematic in battery-operated equipments such as smartphones. Each process also requires the presence of a buffer on both the receiver side and the sender side, so additional resources are required at the \ac{gNB}, too. 
-\paragraph{Aggressive HARQ}
-A more sophisticated approach could involve the design of an aggressive version of the \ac{HARQ} protocol, where each process is allowed to send multiple packets before receiving an acknowledgement. Since there already are multiple concurrent processes, each \ac{ACK} packet must already contain a field specifying the number of process it belongs to, and the information identifying the specific packet to be acknowledged within a process could be encoded inside this field.
-\paragraph{Disable \ac{HARQ}}
-Lastly, the option of disabling \ac{HARQ} completely and rely solely on \ac{ARQ} retransmissions has been proposed by 3GPP itself \cite{hybrid-arq-schemes-muk}. This, however, would come with a performance penalty since satellite links typically suffer from more severe conditions than terrestrial ones, and \cite{5g-beyond-5g-ntn-trends-vanellicoralli} demonstrated that a version of \ac{HARQ} specifically designed for non-terrestrial networks would be beneficial.
+\subsection{Increasing the number of processes}
+The easiest solution would be to increase the number of maximum concurrent \ac{HARQ} processes. Since each process works with a stop-and-wait behavior, the long \ac{RTT} can easily keep all the 16 maximum concurrent processes waiting. While all the processes are waiting their respective \ac{ACK}s, the channel remains unused. Increasing the maximum number of concurrent \ac{HARQ} processes can improve the throughput since the \ac{UE} can spend less time waiting.
 
-\subsection{Implemented solution - More processes}
-\subsubsection{Testing current implementation}
+However, this comes with some caveats mainly regarding the higher computational capabilities required and higher power consumption, that can quickly become problematic in battery-operated equipment such as smartphones and /or sensors. Each process also requires the presence of a buffer at both the receiver side and the sender side, so additional memory resources are required at the \ac{gNB}, too, which may not be feasible in some application scenarios with strict end user constraints. 
+\subsection{Aggressive HARQ}
+A more sophisticated approach could involve the design of an aggressive version of the \ac{HARQ} protocol, where each process is allowed to send multiple packets before receiving an acknowledgement e.g., implementing Sliding-Window \ac{HARQ}. Since there already are multiple concurrent processes, each \ac{ACK} packet must already contain a field specifying the number of processes it belongs to, and the information identifying the specific packet to be acknowledged within a process could be encoded inside this field.
+
+\subsection{Disable HARQ}
+Lastly, the option of disabling \ac{HARQ} completely and rely solely on \ac{ARQ} retransmissions has been proposed by 3GPP itself \cite{hybrid-arq-schemes-muk}. This, however, would come with a performance penalty in terms of communication accuracy and reliability, since satellite links typically suffer from more severe conditions than terrestrial ones, and \cite{5g-beyond-5g-ntn-trends-vanellicoralli} demonstrated that a version of \ac{HARQ} specifically designed for \ac{NTN}s would be beneficial.
+
+\section{Implemented solution - More processes}
+\subsection{Testing current implementation}
 \paragraph{}
-To test the practical effect that the concurrent processes' limitation has on the achievable throughput, a simulation campaign was conducted where the \ac{HARQ} protocol was firstly disabled and successively enabled, therefore obtaining results for the two different scenarios. The maximum number of concurrent processes with \ac{HARQ} enabled was set to 16, that is the maximum that a \ac{gNB} can allocate to each \ac{UE}.
+To test the practical effect that the concurrent \ac{HARQ} processes' limitation has on the achievable throughput, a simulation campaign was conducted where the \ac{HARQ} protocol was firstly disabled and successively enabled, therefore obtaining results for the two different scenarios. The maximum number of concurrent processes with \ac{HARQ} enabled was set to 16, that is the maximum that a \ac{gNB} can allocate to each \ac{UE} according to the 5G \ac{NR} specifications.
 
 \paragraph{}
-Comparing the obtained results confirmed that employing \ac{HARQ} caused a noticeable negative impact on the throughput, as can be appreciated in Fig. \ref{fig:harq_on_off}. The throughput without \ac{HARQ} perfectly matches the source rate, since the \ac{SNR} values of this simulation are high enough to correctly deliver almost the totality of the packets. 
+Comparing the obtained results confirmed that employing \ac{HARQ} caused a noticeable negative impact on the throughput, as illustrated in Fig. \ref{fig:harq_on_off}. The throughput without \ac{HARQ} perfectly matches the source rate, since the \ac{SNR} values of this simulation are high enough to correctly deliver almost the totality of the packets. 
 
-On the other hand, the throughput with \ac{HARQ} enabled reaches its plateau as the source rate crosses the 4Mb/s threshold, settling at this value. \ac{HARQ} struggles to keep up with the increasing source rate since the limited number of processes starts to cause packets to be dropped whenever a retransmission is needed. For a high enough source rate, the \ac{HARQ} protocol is completely overwhelmed, as all the 16 processes are always busy, and the arriving packets that do not find an available process are promptly discarded.
+On the other hand, the throughput with \ac{HARQ} enabled reaches its plateau as the source rate crosses the 4Mb/s threshold, settling at this value. \ac{HARQ} struggles to keep up with the increasing source rate since the limited number of processes starts to cause packets to be dropped whenever a retransmission is needed. As the source rate increases, the \ac{HARQ} protocol is completely overwhelmed, as all the 16 processes are always busy, and the arriving packets that do not find an available process are promptly discarded directly at the sender. This is not a retransmission problem, rather a design problem.
 
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.7\textwidth]{res/harq-onoff2.png}
+    \includegraphics[width=0.8\textwidth]{res/harq-onoff2.png}
     \caption{End-to-end throughput comparison with and without \ac{HARQ}, $\tau_p=6$ms.}
     \label{fig:harq_on_off}
 \end{figure}
-\subsubsection{ns-3 implementation}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{res/thr_different_tp.png}
+    \caption{End-to-end throughput with different propagation delays, 16 \ac{HARQ} processes}
+    \label{fig:thr-different-tp}
+\end{figure}
+\paragraph{Impact of propagation delay}
+Figure \ref{fig:thr-different-tp} shows the application-level throughput as the source rate increases, this time while keeping the number of \ac{HARQ} processes fixed to 16 but varying the propagation delay. Simulations were made with $\tau_p\in[20, 40, 60, 80] \text{ms}$. We can see that the maximum achievable throughput is smaller as the propagation delay increases, since each \ac{HARQ} process needs to wait more time for \ac{ACK}s to arrive, dropping newer packets in the meantime.
+
+
+
+\subsection{ns-3 implementation}
 \paragraph{}
 Having verified that \ac{HARQ} does indeed limit the achievable throughput, a modification was implemented to the protocol suite to manually force a higher number of concurrent processes.
 
 This was done by modifying the \texttt{NumHarqProcess} parameter of the class \texttt{MmWavePhyMacCommon}, making it accessible and simulating various scenarios with different number of processes.
 
-However, a flaw in the \texttt{MmWaveFlexTtiMacScheduler} class containing the ns-3 implementation of \ac{HARQ} made the whole simulator crash whenever a new outbound packet found that all the processes were already occupied. If $n$ processes were available, the simulator tried to access the $n+1$th process, causing an exception. The implemented solution consisted of a safeguard that checked the number of available processes, eventually discarding the packet. 
+However, a flaw in the \texttt{MmWaveFlexTtiMacScheduler} class in the ns-3 implementation of \ac{HARQ} made the whole simulator crash whenever a new outbound packet found that all the processes were already occupied. If $n$ processes were available, the simulator tried to access the $n+1$th process, causing an exception. The implemented solution consisted of a safeguard that checked the number of available processes, eventually discarding the packet. 
 
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.7\textwidth]{res/harq_numproc_new.png}
+    \includegraphics[width=0.8\textwidth]{res/thr_processes.png}
     \caption{End-to-end throughput comparison with different number of concurrent \ac{HARQ} processes, $\tau_p=6$ms.}
     \label{fig:harq-numproc}
 \end{figure}
 
-\subsubsection{Results}
+\subsection{Results}
 \paragraph{}
-Increasing the allowed processes pushed the maximum achievable throughput to just over 14Mb/s in the scenario with the highest allowance of per-user concurrent processes. Going past such threshold causes packets to start being dropped, and the throughput to saturate, since there are no more available processes to send the traffic generated by the application.
+The results shown in figure \ref{fig:harq-numproc} make clear that increasing the parameter regulating the number of \ac{HARQ} processes allows for higher throughput. Each line in the plot was obtained with a different number of allowed processes, starting from 16, the maximum possible value in the 5G \ac{NR} standard, then 32, 64 and ultimately 100. No further increases have been evaluated, since those would currently be unrealistic to achieve.
 
-The results shown in figure \ref{fig:harq-numproc} make clear that increasing the parameter regulating the number of \ac{HARQ} processes allows for higher speeds. Each line in the plot was obtained with a different number of allowed processes, starting from 16, the maximum allocable value in the 5G \ac{NR} standard, then 32, 64 and ultimately 100. No further increases have been evaluated, since those would currently be unrealistic to achieve.
+Increasing the allowed number of \ac{HARQ} processes pushed the maximum achievable throughput up to around 14 Mb/s when considering 100 parallel processes. Going past such threshold causes packets to start being dropped, and the throughput to saturate, since there are no more available processes to send the traffic generated by the application.
 
-However, constraints regarding the required computational power and the increased energy consumption shall also be taken into careful consideration, since raising the number of concurrent processes from 16 to 100 is a big step, bringing a consistent increase in both the receiver and transmitter complexity with it.
+However, constraints regarding the required computational power and the increased energy and memory consumption shall also be taken into careful consideration, since raising the number of concurrent processes from 16 to 100 is a big step, bringing a consistent increase in both the receiver and transmitter complexity with it.
 
 We can conclude that, while certainly being a way to improve the performances of \ac{HARQ} in non-terrestrial scenarios, the increase in processes alone cannot solve the problem of \ac{HARQ} limiting the throughput, therefore other ways have to be found, and future studies should also consider alternative proposals.
 
-\subsection{Implemented solution - Disabling HARQ}
-\paragraph{}
-Figure \ref{fig:harq_on_off} could suggest that completely disable the \ac{HARQ} protocol could be a viable solution, since the end to end throughput of the simulation with \ac{HARQ} switched off always matched the source rate, meaning that all the packets generated by the application were correctly received by the remote host.
 
-However, the reason of this behavior is the high \ac{SNR} that was forced in the simulated scenario with the choice of using high gain antennas. This design choice is not fully realistic, since the intended final use case of non-terrestrial networks is their usage with mobile handsets. Such choice was made because this work is focused on the study of the propagation delay, and the high gain of aperture antennas allowed to limit the impact of the problems caused by low \ac{SNR}. Having a communication channel with high \ac{SNR} allowed for fewer variables to impact the simulations' results, in turn enabling the study of propagation delay alone.
+\section{Implemented solution - Disabling HARQ}
+\paragraph{}
+Figure \ref{fig:harq_on_off} could suggest that completely disabling the \ac{HARQ} protocol could be a viable solution, since the end to end throughput of the simulation with \ac{HARQ} switched off always matched the source rate, meaning that all the packets generated by the application were correctly received by the remote host.
+
+However, the reason of this behavior is the high \ac{SNR} that was forced in the simulated scenario with the choice of using high gain antennas. This design choice is not fully realistic, espcially considering direct-to-handle communication. Such choice was made because this thesis is focused on the study of the propagation delay, and the high gain of aperture antennas allowed to limit the impact of some other problems caused by low \ac{SNR}. Having a communication channel with high \ac{SNR} allowed for fewer variables to impact the simulations' results, in turn enabling the study of propagation delay alone.
 
 \paragraph{}
-In order to test the performances without \ac{HARQ} enabled, a new simulation campaign has been conducted factoring in the problems related to poor \ac{SNR}, such as the presence of errors in the received packets and the need for retransmissions. In conditions of low \ac{SNR}, which can be plausible in a non-terrestrial communication scenario, the \ac{PDR} and therefore the throughput can drop considerably, impacting the link reliability.
+In order to test the performances without \ac{HARQ} enabled, a new simulation campaign was conducted factoring in the problems related to poor \ac{SNR}, such as the presence of errors in the received packets and the need for retransmissions. The gain of the \ac{UE}'s antenna was lowered in order to appreciate the difference between the case with \ac{HARQ} enabled and the case with \ac{HARQ} disabled. In conditions of low \ac{SNR}, e.g., when the distance between the terrestial end node and the satellite (and so the propagation delay) increases, which can be plausible in a non-terrestrial communication scenario, the \ac{PDR} and therefore the throughput can drop considerably, impacting the link reliability.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{res/pdr_harq_onoff.png}
+    \caption{Packet delivery ratio with \ac{HARQ} on and off, 16 concurrent \ac{HARQ} processes}
+    \label{fig:harq-snr}
+\end{figure}
+
 \paragraph{}
-Simulations have shown that fully disable \ac{HARQ} may be a good solution only when both \ac{UE} and \ac{gNB} experience optimal channel conditions with high \ac{SNR}, while poor channel conditions may benefit from having \ac{HARQ} enabled.
+Simulations have shown that disabling \ac{HARQ} is a good solution only when both \ac{UE} and \ac{gNB} experience good channel conditions with high \ac{SNR}, while poor channel conditions benefit from having \ac{HARQ} enabled. Figure \ref{fig:harq-snr} shows the packet delivery ratio as the orbiting altitude of the satellite increases, thus reducing the SNR. Initially, both scenarios correctly deliver all the packets, but, as the link quality decreases, the use of \ac{HARQ} protocol proves to be beneficial for the reliability of the transmission, since it manages to correctly deliver more packets. 
 
 A hybrid approach can also be thought, where \ac{CQI} can be used to assess the state of the channel and decide whether to enable \ac{HARQ}, therefore limiting the throughput in exchange for a higher reliability, or disabling it, should the \ac{SNR} be high enough.
+
+\section{Implemented solution - Aggressive HARQ}
+\paragraph{}
+In the previous section we disabled \ac{HARQ} and compared the link reliability against the same scenario with \ac{HARQ} enabled. Results showed that \ac{HARQ} is still beneficial in cases of low \ac{SNR}, therefore a modification was designed and implemented to try optimizing the protocol's behavior when dealing with high propagation delays.
+Now each \ac{HARQ} process is allowed to send two packets at once without having to wait for the \ac{ACK} to arrive. Once the \ac{ACK} arrives, the process can send two more packets and so on.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{res/aggressive_harq.png}
+    \caption{End-to-end throughput comparison with aggressive \ac{HARQ}.}
+    \label{fig:aggressive}
+\end{figure}
+
+\paragraph{}
+Figure \ref{fig:aggressive} shows the results of the aggressive \ac{HARQ} approach. Each line in the plot represents a different number of maximum concurrent \ac{HARQ} processes allocated to each user. 
+
+As expected, for each number of concurrent \ac{HARQ} processes, the throughput is roughly doubled with respect to the standard \ac{HARQ} implementation of Figure \ref{fig:harq-numproc}, while the overall trend is similar.
+
+\paragraph{Drawbacks}
+This approach could be further pushed to accomodate for even more packets per process, allowing for a higher throughput to be achieved. However, we expect to incur in a penalty in terms of additional overheads caused by both control messages and packets retransmissions. Furthermore, additional resources are required, both in terms of computational capabilities and memory. 
 
 \iffalse
     \subsection{Simulator configuration}

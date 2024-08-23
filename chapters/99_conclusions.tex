@@ -3,13 +3,16 @@
 \chapter{Conclusions and Future Works}
 \label{chp:conclusions}
 
-This work has provided a comprehensive study on the impact that the high propagation delay experienced in non-terrestrial networks has in layer-2 protocols. In particular, focus has been posed on the scheduler and \ac{HARQ} protocol.
+This work has provided a comprehensive study on the impact that the high propagation delay experienced in \ac{NTN}s has in layer-2 protocols. The current codebase of the ns-3 network simulator has been properly extended to allow for end-to-end simulation of the \ac{NR} stack in a \ac{NTN} scenario, since the ns-3 implementation of \ac{NR} technology was not designed for high propagation delays. A lot of work went therefore into the design, implementation, and testing of a base support for the simulation of \ac{NTN}s.
 
-It was shown that propagation delay plays a crucial role in the performances of such networks, affecting both the efficiency and reliability of data transmission.
+It was shown that propagation delay plays a crucial role in the performances of \ac{NR} in \ac{NTN}s, affecting both the efficiency and reliability of data transmission.
+
+\paragraph{}
+Once the simulator was ready, focus has been placed on the optimization of the \ac{HARQ} protocol in \ac{NTN}s, investigating its shortcomings when delaing with large propagation delays as well as proposing some original solutions to increase its performances.
 
 \section{Results}
-\subsection{Scheduler}
-The scheduler has to account for the propagation delay, therefore a redesign of certain mechanisms is mandatory.
+\subsection{Simulator redesign}
+Since the state of the art in network simulation tools was not ready for complete \ac{NR} \ac{NTN} simulations, presenting numerous problems especially at the scheduler, a redesign of certain behaviors was performed.
 
 \subsubsection{Scheduling with propagation delay}
 This study has found (section \ref{sec:pd-sched-acc}) that the current scheduling with short advance (i.e. scheduling only a slot in advance: at time $t_0$ the schedule allocates the resources of time $t_0+1$ms) does not work in \ac{NTN} because the propagation delay itself is longer than the delay between the act of scheduling and the time for which the scheduling happens. 
@@ -20,7 +23,7 @@ The proposed solution uses information on the propagation delay to adjust the ad
 
 Another flaw discovered in the implementation of current \ac{NR} protocols in \ac{NTN} involves the periodic \ac{BSR} that the \ac{UE} keeps sending every 10ms (section \ref{sec:bsr-timer}). 
 
-While this presents some benefits, it is not the intended behavior, therefore leaving the current implementation, albeit working, is far from an ideal choice.
+While this approach presents some (undesired) benefits, it is not the intended behavior, therefore the current implementation, albeit working, is far from an ideal choice.
 
 The proposed solution consists of adapting the \ac{BSR} timer accordingly to the propagation delay, never allowing it to assume values smaller than a round-trip time. 
 
@@ -44,11 +47,13 @@ Both these solutions have also been implemented in the simulator, evaluating sce
 
 It was found that increasing the number of processes allows for considerably higher throughputs, while disabling \ac{HARQ} is only feasible in conditions of high \ac{SNR}.
 
+Since having \ac{HARQ} enabled still proved to be helpful in a scenario of low \ac{SNR}, a more aggressive version of \ac{HARQ} was designed, where each process was allowed to send two packets instead of one before waiting for the \ac{ACK}. This solution managed to roughly double the achievable throughput with respect to the standard \ac{HARQ} implementation.
+
 \section{Future work}
 
 The preparation of this work required many simulations to be run and evaluated, and as expected some design problems emerged. With a thoughtful approach, each unexpected behavior was investigated and solutions were devised, implemented and tested.
 
-While effort was made to provide more than a single solution, striving to look at the problems from different perspectives to find more than a single way to approach it, not all the possibilities were thoroughly explored, and some observations were made whenever it was felt that a point might benefit from additional work.
+While effort was made to provide more than a single solution, striving to look at the problems from different perspectives to find more than a single way to approach it, some possibilities still require a deeper study, and some observations were made whenever it was felt that a point might benefit from additional work.
 
 This section describes some possible future paths that might have the potential to improve the solutions proposed in this work, as well as different approaches which performances are still to be evaluated.
 
@@ -61,12 +66,12 @@ A predictive algorithm capable of visualizing patterns in the \ac{UE}-generated 
 Timers often represent a trade-off between higher performances and a more robust network. This is the reason behind the proposal of a dynamic approach when setting the values for \ac{BSR} periodic requests and reordering timer. Since the delay of \ac{NTN}s can experience large variations depending on the satellite orbit, configurable timers shall be preferred instead of using fixed values.
 
 \paragraph{}
-Regarding \ac{HARQ}, a dynamic way of enabling and disabling it on the fly based on channel quality indicators could be beneficial, since it was shown that high-\ac{SNR} scenarios performed better with \ac{HARQ} disabled, while conditions of low \ac{SNR} benefitted from having it enabled. Furthermore, section \ref{sec:proc-harq-prop-sol} described a more aggressive implementation of \ac{HARQ} that could improve the throughput. Future studies on the matter could explore this proposal, testing whether it would be beneficial or not.
+Regarding \ac{HARQ}, a dynamic way of enabling and disabling it on the fly based on channel quality indicators could be beneficial, since it was shown that high-\ac{SNR} scenarios performed better with \ac{HARQ} disabled, while conditions of low \ac{SNR} benefitted from having it enabled.
 
+\paragraph{}
 
-\section{Conclusions}
-It is clear that further research is needed to develop more effective strategies for managing propagation delay in non-terrestrial networks. This includes exploring new technologies, improving existing methodologies, and devising innovative network architectures.
+It is clear that further research is needed to develop more effective strategies for managing propagation delay in \ac{NTN}s. This includes exploring new technologies, improving existing methodologies, and devising innovative network architectures.
 
 Ultimately, this work aims to pave the way for future research and practical applications in the field of \ac{NTN}s, emphasizing the need for continuous innovation and adaptation to meet the evolving demands of modern communication systems. 
 
-The findings of this thesis not only contribute to the existing body of knowledge on non-terrestrial networks but also pave the way for future research in this evolving field.
+The findings of this thesis not only contribute to the existing body of knowledge on \ac{NTN}s but also pave the way for future research in this evolving field.
